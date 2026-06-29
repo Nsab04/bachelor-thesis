@@ -3,19 +3,65 @@
 Per poter spiegare coma mai lo strong gravitational lensing sia uno strumento d'indagine tanto efficace nel campo della materia oscura, occorre introdurre il modello cosmologico standard, nel quale tale materia trova il proprio scopo, e le sue principali caratteristiche.
 \section{Il modello \texorpdfstring{$\Lambda$CDM}{LambdaCDM}}
 La Cosmologia è la disciplina che studia la struttura e l'evoluzione dell'Universo nel suo complesso.
-Alla base di tale disciplina vi è il \emph{Principio Cosmologico}: esso afferma che l'Universo su larga scala, ovvero per distanze uguali o superiori ai 100 Mpc, è omogeneo e isotropo.
+Alla base di tale disciplina vi è il \emph{Principio Cosmologico} \parencite{Ryden2003}: esso afferma che l'Universo su larga scala, ovvero per distanze uguali o superiori ai 100 Mpc, è omogeneo e isotropo.
 L'omogeneità rende equivalenti tutte le posizioni, mentre l'isotropia rende equivalenti tutte le direzioni nello spazio: l'Universo appare dunque sempre uguale, indipendentemente da dove o in che direzione viene puntato il telescopio.
 La principale evidenza osservativa a sostegno di tale principio è fornita dalla \emph{radiazione cosmica di fondo} (spesso abbreviata con la sigla CMB, dall'inglese Cosmic Microwave Background), la quale aderisce al profilo di un corpo nero di temperatura pari a $T_{CMB}=(2.725 \pm 0.001)\ K$ su tutto il piano del cielo, con anisotropie dell'ordine di $10^{-5}\ K$.
 
 Su scale cosmologiche, ciò che determina come debba evolversi l'Universo è la gravità.
 La gravità, come descritto dalla \emph{Teoria della Relatività Generale} di Albert Einstein, è la manifestazione della curvatura del tessuto spazio-temporale.
-Lo spazio-tempo è rappresentato matematicamente da uno spazio vettoriale a quattro dimensioni, di cui tre spaziali e una temporale. In tale spazio è possibile definire una metrica, che permette di misurare le distanze al suo interno; si può dimostare che, in virtù del Principio Cosmologico, la metrica da adottare su scale cosmologiche è quella di Robertson-Walker:
-$$ds^2=-c^2\ dt^2+ a(t)^2\Big[\frac{dx^2}{1-\frac{kx^2}{{R_0}^2}}+x^2\ (d\theta^2+\sin\theta^2 \ d\phi^2)\Big]$$
+Lo spazio-tempo in questo formalismo è rappresentato matematicamente da uno spazio vettoriale a quattro dimensioni, di cui tre spaziali e una temporale. In tale spazio è possibile definire una metrica, che permette di misurare le distanze al suo interno; si può dimostare che, in virtù del Principio Cosmologico, la metrica da adottare su scale cosmologiche è quella di Robertson-Walker:
+\begin{equation}
+    ds^2=-c^2\ dt^2+ a(t)^2\Bigg[\frac{dx^2}{1-\frac{kx^2}{{R_0}^2}}+x^2\ (d\theta^2+\sin\theta^2 \ d\phi^2)\Bigg]
+\end{equation}
 dove
 \begin{itemize}
     \item t è detto \emph{tempo cosmologico proprio}, misurato da un osservatore che vede l'universo espandersi uniformemente attorno a sé;
     \item le coordinate spaziali (x, $\theta$, $\phi$) sono quelle comoventi con il punto dello spazio considerato, costanti nel tempo grazie all'isotropia e all'omogeneità dell'universo;
-    \item a(t) è il \emph{fattore di scala} dell'Universo, adimensionale, e descrvive come variano le distanze nel tempo a causa dell'espansione dello spazio-tempo;
-    \item k e la \emph{costante di curvatura} e può assumere tre valori distinti e costanti nel tempo
+    \item a(t) è il \emph{fattore di scala} dell'Universo, adimensionale, e descrive come variano le distanze nel tempo a causa dell'espansione dello spazio-tempo;
+    \item k e la \emph{costante di curvatura} e può assumere tre valori distinti e costanti nel tempo:
+          \begin{itemize}
+              \item se k=1, l'Universo ha curvatura positiva e la geometria dello spazio è detta \emph{ellittica} o \emph{chiusa};
+              \item se k=0, l'Universo è piatto, privo di curvatura, e la corrispondente geometria è detta \emph{parabolica};
+              \item se k=-1, l'Universo ha curvatura negativa e lo spazio ha geometria \emph{parabolica} o \emph{aperta}.
+          \end{itemize}
+
+    \item $R_0$ ha le dimensioni di una lunghezza e rappresenta il \emph{raggio di curvatura} al tempo presente; per trovare il raggio di curvatura ad un tempo qualsiasi basta moltiplicare tale valore per il fattore di scala.
+
 \end{itemize}
+% Valutare se inserire formula che lega la costante di Hubble al fattore di scala + relazione con redshift
 % Inserire parte su universo in espansione
+L'equazione chiave della Relatività Generale è l'\emph{equazione di campo di Einstein}, la quale fornisce la relazione matematica fra la metrica dello spazio-tempo in un punto, definita tramite gli opportuni tensori, e la densità di massa-energia ivi presente.
+Le traiettorie di oggetti liberi sono descritte dalle geodetiche della superficie curva quadridimensionale considerata.
+Nei contesti cosmologici, tale equazione permette di relazionare i parametri geometrici sopraelencati con la densità di energia e la pressione in un punto; ciò è sintetizzato dall'\emph{equazione di Friedmann}
+\begin{equation}
+    \Bigg[\frac{\dot{a}(t)}{a(t)}\Bigg]^2=\frac{8\pi G}{3c^2}\varepsilon (t)-\frac{kc^2}{{R_0}^2}\frac{1}{a(t)^2}
+    \label{eq:Friedmann}
+\end{equation}
+Essa permette di legare la geometria dell'Universo alla sua espansione, ovvero di determinare se essa sia accelerata o meno, se tale accelerazione sia costante e se possa invertire il proprio segno (ovvero portare l'Universo alla contrazione) ad un certo istante.
+Ricordando la relazione che lega il fattore di scala alla costante di Hubble
+\begin{equation}
+    H_0 = \left. \frac{\dot{a}(t)}{a(t)}\right|_{t=t_0}
+\end{equation}
+l'equazione di Friedmann al tempo t=$t_0$, ovvero nel presente, in cui il fattore di scala ha valore unitario, può essere riscritta come
+\begin{equation}
+    {H_0}^2=\frac{8\pi G}{3c^2}\varepsilon_0-\frac{kc^2}{{R_0}^2}
+\end{equation}
+Ponendo la curvatura pari a zero e invertendo la formula sovrastante si trova la definizone della \emph{densità critica attuale}
+\begin{equation}
+    \varepsilon_{c,0}=\frac{3c^2{H_0}^2}{8\pi G}
+\end{equation}
+Tale trattazione può essere estesa a tempi generici definendo il \emph{parametro di Hubble}
+\begin{equation}
+    H(t) \equiv \frac{\dot{a}(t)}{a(t)}
+    \quad \text{da cui} \quad
+    \varepsilon_c(t) = \frac{3c^2}{8\pi G} H(t)^2
+\end{equation}
+Per descrivere la curvatura dell'Universo, si è soliti adottare il \emph{parametro di densità} adimensionale
+\begin{equation}
+    \Omega(t) \equiv \frac{\varepsilon(t)}{\varepsilon_c(t)}
+\end{equation}
+tramite il quale può essere riespressa l'Equazione~\ref{eq:Friedmann} come
+\begin{equation}
+    1-\Omega(t)=-\frac{kc^2}{{R_0}^2a(t)^2H(t)^2}
+\end{equation}
+Poiché il termine di destra non può cambiare segno nel tempo, anche il termine di sinistra deve comportarsi allo stesso modo; ciò implica che il rapporto tra densità locale e densità critica non possa invertirsi, e di conseguenza l'Universo non possa cambiare il segno della propria curvatura nel tempo.

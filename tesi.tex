@@ -17,7 +17,9 @@
 % --- PREAMBOLO ---------------------------------------------------------------
 % Inserire qui eventuali package da includere o 
 % definizioni di comandi personalizzati...
-
+\usepackage[utf8]{inputenc}
+\usepackage[backend=biber, style=authoryear]{biblatex}
+\addbibresource{bibliografia.bib}
 % ...ad esempio il seguente package permette di inserire note visibili nel pdf di output,
 % (il comando che lo precede serve a lasciare spazio alle note, va rimosso prima della consegna)
 % \setlength {\marginparwidth }{2cm}
@@ -25,8 +27,16 @@
 
 % Selezione lingua
 \usepackage[italian]{babel}
+\usepackage{csquotes}
 
 \usepackage{tesi}
+\makeatletter
+\def\cl@chapter{\@elt{section}\@elt{footnote}\@elt{equation}\@elt{figure}\@elt{table}}
+\makeatother
+
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 % Puoi usare il font di default di LaTeX con la relativa opzione del package
 % \usepackage[defaultfont]{tesi}
 % Esiste anche un'opzione per il formato 17x24 per le tesi di dottorato
@@ -39,11 +49,10 @@
 % !!! INFORMAZIONI SULLA TESI DA COMPILARE !!!
 
 %   UNIVERSITA' E CORSO DI LAUREA:
-\university{Università degli Studi di Milano}
-\unilogo{immagini/loghi/unimi}
-\faculty{Facoltà di Scienze e Tecnologie}
-\department{Dipartimento di Informatica\\Giovanni Degli Antoni}
-\cdl{Corso di Laurea Triennale in\\Corso di Laurea}
+\university{Università degli Studi di Bologna}
+\faculty{Facoltà di Fisica}
+\department{Dipartimento di Fisica e Astronomia\\Augusto Righi}
+\cdl{Corso di Laurea Triennale in\\Fisica}
 
 %   TITOLO TESI:
 \title{Un Template LaTeX per Elaborati Triennali o Tesi Magistrali}
@@ -52,23 +61,23 @@
 \printedtitle{Un Template \LaTeX{} per Elaborati\\Triennali o Tesi Magistrali}
 
 %   AUTORE:
-\author{Nome E. Cognome}
-\matricola{123456}
+\author{Sabrina Notarpietro}
+\matricola{0001131483}
 % "Elaborato Finale" per i CdL triennali
 % "Tesi di Laurea" per i CdL magistrali
 \typeofthesis{Elaborato Finale}
 
 %   RELATORE E CORRELATORE:
-\relatore{Prof. Giovanni Degli Antoni}
-\correlatore{Prof. Brian W. Kernighan}
-\correlatore{Prof. Dennis M. Ritchie}
+\relatrice{Prof.ssa Giulia Despali}
+% \correlatore{Prof. Brian W. Kernighan}
+% \correlatore{Prof. Dennis M. Ritchie}
 
 %   ANNO ACCADEMICO
 % \the\year inserisce l'anno corrente
 % per specificare manualmente un anno accademico
 % NON inserire nel formato 1970-1971, ma
 % inserire solo 1970
-\academicyear{\the\year} 
+\academicyear{2025} 
 
 %   INDICI:
 % elenco delle figure (facoltativo)
@@ -95,22 +104,22 @@
 %
 
 {\raggedleft \large \sl Questo lavoro \`{e} dedicato ai miei genitori\\
-	
-	\vspace{2cm}
-	
-	``What I cannot create, I do not understand''
-	
-	\bigskip
-	
-	\--- Richard Feynman\\
-  
-	\vspace{2cm}
-	
-	``It's not only powerful,\\but it's also inadequate''
-	
-	\bigskip
-	
-	\--- Miller Puckette\\}
+
+\vspace{2cm}
+
+``What I cannot create, I do not understand''
+
+\bigskip
+
+\--- Richard Feynman\\
+
+\vspace{2cm}
+
+``It's not only powerful,\\but it's also inadequate''
+
+\bigskip
+
+\--- Miller Puckette\\}
 
 \clearpage
 \beforepreface
@@ -149,6 +158,6 @@ Questa sezione, facoltativa, contiene i ringraziamenti.
 % Il default è 'chapter', per 'part' usare
 % \beforebibliography[part]
 \beforebibliography
-\bibliographystyle{unsrt}
-\bibliography{bibliografia}
+\printbibliography
 \end{document}
+
