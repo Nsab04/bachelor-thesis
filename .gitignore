@@ -7,7 +7,7 @@
 
 
 ## PDFs
-*.pdf
+% *.pdf
 !immagini/**
 
 ## Core latex/pdflatex auxiliary files:
