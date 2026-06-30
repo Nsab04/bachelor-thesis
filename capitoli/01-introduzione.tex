@@ -32,7 +32,8 @@ dove
 % Inserire parte su universo in espansione
 L'equazione chiave della Relatività Generale è l'\emph{equazione di campo di Einstein}, la quale fornisce la relazione matematica fra la metrica dello spazio-tempo in un punto, definita tramite gli opportuni tensori, e la densità di massa-energia ivi presente.
 Le traiettorie di oggetti liberi sono descritte dalle geodetiche della superficie curva quadridimensionale considerata.
-Nei contesti cosmologici, tale equazione permette di relazionare i parametri geometrici sopraelencati con la densità di energia e la pressione in un punto; ciò è sintetizzato dall'\emph{equazione di Friedmann}
+Nei contesti cosmologici, tale equazione permette di relazionare i parametri geometrici sopraelencati con la densità di energia e la pressione in un punto; ciò è sintetizzato dalle \emph{equazioni di Friedmann}.
+La \emph{prima equazione di Friedmann} esprime la relazione con la densità di energia
 \begin{equation}
     \Bigg[\frac{\dot{a}(t)}{a(t)}\Bigg]^2=\frac{8\pi G}{3c^2}\varepsilon (t)-\frac{kc^2}{{R_0}^2}\frac{1}{a(t)^2}
     \label{eq:Friedmann}
@@ -65,3 +66,53 @@ tramite il quale può essere riespressa l'Equazione~\ref{eq:Friedmann} come
     1-\Omega(t)=-\frac{kc^2}{{R_0}^2a(t)^2H(t)^2}
 \end{equation}
 Poiché il termine di destra non può cambiare segno nel tempo, anche il termine di sinistra deve comportarsi allo stesso modo; ciò implica che il rapporto tra densità locale e densità critica non possa invertirsi, e di conseguenza l'Universo non possa cambiare il segno della propria curvatura nel tempo.
+
+La prima equazione di Friedmann non è tuttavia sufficiente da sola a descrivere l'evoluzione temporale del fattore di scala (o, equivalentemente, del parametro di Hubble), in quanto presenta due incognite, canonicamente H(t) e $\Omega(t)$.
+Infatti, si rende necessario affiancarvi l'\emph{equazione dei fluidi}
+\begin{equation}
+    \dot{\varepsilon}+3\frac{\dot{a}}{a}(\varepsilon + P)=0
+\end{equation}
+Combinandole, è possibile ricavare come varia la velocità dell'espansione dell'Universo nel tempo, ovvero l'\emph{equazione dell'accelerazione}
+\begin{equation}
+    \frac{\ddot{a}}{a} = -\frac{4\pi G}{3c^2}(\varepsilon+3P)
+\end{equation}
+Essa afferma che una densità di energia positiva rallenta l'espansione: questo è il caso della materia barionica, di quella oscura e dei fotoni.
+Come vedremo in seguito {(\color{red}!!!!!!!!!!!!!!!!!!!!!)}, il nostro Universo è in realtà in espansione accelerata: il contributo dominante è quello della costante cosmologica $\Lambda$, che applica una pressione tale da invertire il segno del termine tra parentesi.
+Conoscendo ora due equazioni in tre variabili, è possibile completare il quadro inserendo l'\emph{equazione di stato}, che fornisce la relazione tra la pressione e la densità di energia
+\begin{equation}
+    P=w \varepsilon
+\end{equation}
+Tale equazione è lineare e presenta un unico parametro adimensionale $w$, il quale ha valore
+\begin{itemize}
+    \item compreso tra 0 e $1 \over 3$ per gas non relativistici, comunemente definiti come \emph{materia};
+    \item $w=\frac{1}{3}$ nel caso di gas relativistici, comunemente definiti come \emph{radiazione};
+    \item inferiore a $-\frac{1}{3}$ per l'\emph{energia oscura}, ovvero quella componente che contribuisce positivamente all'espansione dell'Universo.
+\end{itemize}
+La costante cosmologica $\Lambda$ venne introdotta per la prima volta da Einstein nella sua equazione di campo per conciliare l'idea di un Universo statico con il fatto che la componente dominante fra materia e radiazione fosse la prima;
+essa ha le dimensioni dell'inverso di un tempo al quadrato.
+Riderivando le tre equazioni precedenti a seguito di questa correzione, si ottiene
+\begin{equation}
+    \Bigg[\frac{\dot{a}(t)}{a(t)}\Bigg]^2=\frac{8\pi G}{3c^2}\varepsilon (t)-\frac{kc^2}{{R_0}^2}\frac{1}{a(t)^2}+\frac{\Lambda}{3}
+\end{equation}
+e
+\begin{equation}
+    \frac{\ddot{a}}{a} = -\frac{4\pi G}{3c^2}(\varepsilon+3P)+\frac{\Lambda}{3}
+\end{equation}
+mentre l'eqauzione dei fluidi rimane inalterata.
+Sebbene sia stata introdotta per uno scopo errato, la maggior parte dei cosmologi moderni è concorde nell'affermare che è necessario introdurla per spiegare correttamente le evidenze osservative; il suo significato fisico è ancora ignoto, ma l'ipotesi più accreditata è che derivi dal contributo dell'\emph{energia del vuoto}, un fenomeno puramente quantistico che fornisce un contributo costante alla pressione pari a $P=-\varepsilon$.
+
+Le equazioni di Friedmann, derivate dalla Relatività Generale assumendo il principio cosmologico, costituiscono il fondamento matematico del \emph{modello di concordanza $\Lambda$CDM}, i cui fondamenti sono riassunti di seguito:
+\begin{enumerate}
+    \item L'Universo si è formato da una singolarità iniziale chiamata Big Bang;
+    \item L'Universo primordiale era omogeneo e isotropo;
+    \item L'Universo ha una geometria piatta, dovuta ad una fase primordiale di \emph{inflazione};
+    \item La componente dominante di materia dell'Universo è non barionica, ed in particolare \emph{materia oscura fredda} (CDM, dall'inglese Cold Dark Matter);
+    \item Le prime strutture cosmiche a formarsi furono \emph{aloni di materia oscura}, generati da instabilità gravitazionali dovute a piccole disomogeneità di densità;
+    \item In seguito, quando la materia barionica è precipitata nei pozzi di potenziale formati dalla materia oscura, si sono formate le galassie;
+    \item L'Universo è in espansione accelerata, parametrizzata dalla \emph{costante cosmologica $\Lambda$} e dovuta ad una componente energia oscura;
+    \item I valori correnti dei parametri di densità sono:
+          \begin{equation*}
+              \Omega_{rad,0}\simeq 0, \quad \Omega_{b,0}\simeq 0.05, \quad \Omega_{DM,0}\simeq 0.25, \quad \Omega_{\Lambda,0}\simeq 0.70
+          \end{equation*}
+\end{enumerate}
+Il modello spiega prorpiamente la maggior parte dei dettagli osservativi, ma non spiega veramente il nostro Universo, perché non sappiamo di preciso cosa siano i suoi due componenti principali (energia oscura e materia oscura) e non siamo sicuri che la Relatività Generale sia uno strumento appropriato su scale cosmologiche.
