@@ -1,0 +1,258 @@
+{
+  "snapshot": "/Users/maxmen3/projects/pyLensLib/Test/snap_058",
+  "subfind_file": "/Users/maxmen3/projects/pyLensLib/Test/sub_058.0",
+  "parttypes": [
+    0,
+    1,
+    4
+  ],
+  "fov_arcsec": 200.0,
+  "npix_map": 256,
+  "nray": 256,
+  "zhalf_mpc": 10.0,
+  "zs_grid": [
+    1.0,
+    1.5555555555555556,
+    2.111111111111111,
+    2.666666666666667,
+    3.2222222222222223,
+    3.7777777777777777,
+    4.333333333333334,
+    4.888888888888889,
+    5.444444444444445,
+    6.0
+  ],
+  "mass_map_meta": {
+    "center_mpc": [
+      500.6941223144531,
+      498.2177429199219,
+      494.91650390625
+    ],
+    "fov_mpc": 1.221836075055304,
+    "bounds_mpc": {
+      "xmin": -0.610918037527652,
+      "xmax": 0.610918037527652,
+      "ymin": -0.610918037527652,
+      "ymax": 0.610918037527652
+    },
+    "per_parttype": [
+      {
+        "parttype": 0,
+        "projected_mass_msun": 86802860668624.3
+      },
+      {
+        "parttype": 1,
+        "projected_mass_msun": 583301835173844.9
+      },
+      {
+        "parttype": 4,
+        "projected_mass_msun": 10551823884497.734
+      }
+    ]
+  },
+  "pyLensLib": [
+    {
+      "zs": 1.0,
+      "source_plane_area": 29383.9560022706,
+      "ggsl_cross_section": 0.0,
+      "multima_cross_section": 4.443057208977373,
+      "ggsl_probability": 0.0,
+      "multima_probability": 0.00015120691062272358,
+      "n_tancl": 2,
+      "n_radcl": 0
+    },
+    {
+      "zs": 1.5555555555555556,
+      "source_plane_area": 25992.82519100847,
+      "ggsl_cross_section": 0.07279526015725836,
+      "multima_cross_section": 32.31189305801222,
+      "ggsl_probability": 2.800590533053712e-06,
+      "multima_probability": 0.001243108158523286,
+      "n_tancl": 5,
+      "n_radcl": 0
+    },
+    {
+      "zs": 2.111111111111111,
+      "source_plane_area": 24494.46968981244,
+      "ggsl_cross_section": 0.11194523763598793,
+      "multima_cross_section": 55.424667380313885,
+      "ggsl_probability": 4.570224995830279e-06,
+      "multima_probability": 0.0022627420835065358,
+      "n_tancl": 6,
+      "n_radcl": 1
+    },
+    {
+      "zs": 2.666666666666667,
+      "source_plane_area": 23652.574351884374,
+      "ggsl_cross_section": 0.40530225496874817,
+      "multima_cross_section": 69.08910632497536,
+      "ggsl_probability": 1.71356508149591e-05,
+      "multima_probability": 0.0029209973213537794,
+      "n_tancl": 5,
+      "n_radcl": 1
+    },
+    {
+      "zs": 3.2222222222222223,
+      "source_plane_area": 23112.299936827207,
+      "ggsl_cross_section": 0.7269396648613005,
+      "multima_cross_section": 77.84522980350518,
+      "ggsl_probability": 3.1452502210867934e-05,
+      "multima_probability": 0.003368129957480621,
+      "n_tancl": 8,
+      "n_radcl": 1
+    },
+    {
+      "zs": 3.7777777777777777,
+      "source_plane_area": 22735.019808379104,
+      "ggsl_cross_section": 0.9909318175973093,
+      "multima_cross_section": 83.98116300102218,
+      "ggsl_probability": 4.3586142697447594e-05,
+      "multima_probability": 0.0036939120224593123,
+      "n_tancl": 8,
+      "n_radcl": 1
+    },
+    {
+      "zs": 4.333333333333334,
+      "source_plane_area": 22455.738737730848,
+      "ggsl_cross_section": 1.1321590956838112,
+      "multima_cross_section": 88.62354983159686,
+      "ggsl_probability": 5.041736141067234e-05,
+      "multima_probability": 0.003946588035542502,
+      "n_tancl": 8,
+      "n_radcl": 3
+    },
+    {
+      "zs": 4.888888888888889,
+      "source_plane_area": 22240.01191459146,
+      "ggsl_cross_section": 1.3429128928511942,
+      "multima_cross_section": 92.22950850281553,
+      "ggsl_probability": 6.038274161040902e-05,
+      "multima_probability": 0.004147008052738705,
+      "n_tancl": 9,
+      "n_radcl": 2
+    },
+    {
+      "zs": 5.444444444444445,
+      "source_plane_area": 22067.896496459904,
+      "ggsl_cross_section": 1.5137641886708872,
+      "multima_cross_section": 95.09258636003003,
+      "ggsl_probability": 6.859576257817426e-05,
+      "multima_probability": 0.004309091551851561,
+      "n_tancl": 11,
+      "n_radcl": 2
+    },
+    {
+      "zs": 6.0,
+      "source_plane_area": 21927.04564448197,
+      "ggsl_cross_section": 1.6675311424552348,
+      "multima_cross_section": 97.40583014875081,
+      "ggsl_probability": 7.604905692686766e-05,
+      "multima_probability": 0.004442268772914393,
+      "n_tancl": 12,
+      "n_radcl": 2
+    }
+  ],
+  "jlLensLib": [
+    {
+      "zs": 1.0,
+      "source_plane_area": 29383.956002272433,
+      "ggsl_cross_section": 0.0,
+      "multima_cross_section": 4.443057209006451,
+      "ggsl_probability": 0.0,
+      "multima_probability": 0.00015120691062370375,
+      "n_tancl": 2,
+      "n_radcl": 0
+    },
+    {
+      "zs": 1.5555555555555556,
+      "source_plane_area": 25992.825191009106,
+      "ggsl_cross_section": 0.07279526015642136,
+      "multima_cross_section": 32.31189305798547,
+      "ggsl_probability": 2.8005905330214424e-06,
+      "multima_probability": 0.0012431081585222265,
+      "n_tancl": 5,
+      "n_radcl": 0
+    },
+    {
+      "zs": 2.111111111111111,
+      "source_plane_area": 24494.469689818627,
+      "ggsl_cross_section": 0.11194523764198155,
+      "multima_cross_section": 55.42466738034155,
+      "ggsl_probability": 4.570224996073817e-06,
+      "multima_probability": 0.0022627420835070935,
+      "n_tancl": 6,
+      "n_radcl": 1
+    },
+    {
+      "zs": 2.6666666666666665,
+      "source_plane_area": 23652.574351889787,
+      "ggsl_cross_section": 0.4053022549689605,
+      "multima_cross_section": 69.08910632487279,
+      "ggsl_probability": 1.7135650814964154e-05,
+      "multima_probability": 0.0029209973213487742,
+      "n_tancl": 5,
+      "n_radcl": 1
+    },
+    {
+      "zs": 3.2222222222222223,
+      "source_plane_area": 23112.29993683046,
+      "ggsl_cross_section": 0.7269396648393252,
+      "multima_cross_section": 77.84522980350984,
+      "ggsl_probability": 3.14525022099127e-05,
+      "multima_probability": 0.0033681299574803486,
+      "n_tancl": 8,
+      "n_radcl": 1
+    },
+    {
+      "zs": 3.7777777777777777,
+      "source_plane_area": 22735.019808378725,
+      "ggsl_cross_section": 0.9909318175668278,
+      "multima_cross_section": 83.98116300090406,
+      "ggsl_probability": 4.3586142696107594e-05,
+      "multima_probability": 0.0036939120224541784,
+      "n_tancl": 8,
+      "n_radcl": 1
+    },
+    {
+      "zs": 4.333333333333333,
+      "source_plane_area": 22455.738737728323,
+      "ggsl_cross_section": 1.132159095699367,
+      "multima_cross_section": 88.62354983162898,
+      "ggsl_probability": 5.0417361411370735e-05,
+      "multima_probability": 0.0039465880355443765,
+      "n_tancl": 8,
+      "n_radcl": 3
+    },
+    {
+      "zs": 4.888888888888889,
+      "source_plane_area": 22240.01191458751,
+      "ggsl_cross_section": 1.3429128928952365,
+      "multima_cross_section": 92.22950850277311,
+      "ggsl_probability": 6.038274161240006e-05,
+      "multima_probability": 0.004147008052737535,
+      "n_tancl": 9,
+      "n_radcl": 2
+    },
+    {
+      "zs": 5.444444444444445,
+      "source_plane_area": 22067.896496460136,
+      "ggsl_cross_section": 1.5137641886420647,
+      "multima_cross_section": 95.09258635994178,
+      "ggsl_probability": 6.859576257686746e-05,
+      "multima_probability": 0.004309091551847517,
+      "n_tancl": 11,
+      "n_radcl": 2
+    },
+    {
+      "zs": 6.0,
+      "source_plane_area": 21927.04564448671,
+      "ggsl_cross_section": 1.6675311424563417,
+      "multima_cross_section": 97.40583014880744,
+      "ggsl_probability": 7.60490569269017e-05,
+      "multima_probability": 0.004442268772916016,
+      "n_tancl": 12,
+      "n_radcl": 2
+    }
+  ],
+  "jl_geometry_h5": "/Users/maxmen3/projects/pyLensLib/Test/artifacts_phase5/snapshot058_crosssections_compare.jl_geometry.h5"
+}

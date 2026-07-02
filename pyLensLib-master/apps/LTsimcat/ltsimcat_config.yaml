@@ -1,0 +1,65 @@
+# LTsimcat example configuration
+
+deflection:
+  # Option A: single file with 2 HDUs (a1 in hdu_a1, a2 in hdu_a2)
+  single_file: "angles_0001_113_2.fits"
+  hdu_a1: 0
+  hdu_a2: 1
+
+  # Option B: two separate files (uncomment and remove single_file)
+  # x_file: "/path/to/angles_x.fits"
+  # y_file: "/path/to/angles_y.fits"
+  # hdu_x: 0
+  # hdu_y: 0
+
+  # Optional fallback if FITS headers do not provide enough WCS information
+  # pixel_scale_arcsec: 0.2
+
+  # Keep false for pyLensLib-generated maps (default). Set true only if deflection
+  # components are stored in the same handedness as WCS and must be mirrored with axes.
+  reorder_maps_with_axes: false
+
+cosmology:
+  H0: 70.0
+  Om0: 0.3
+
+lens:
+  zl: 0.394
+  zs_ref: 6.0
+
+source_catalog:
+  seed: 99
+  kwargs_src:
+    FOV: 240.0
+    filtern: "BPZ/HST_ACS_WFC_F606W.res"
+    useband: "f775w"
+    recal: "yes"
+    maglim: 30.0
+    udfdir: "/Users/maxmen3/stiva/HUDF/"
+    homedir: "/Users/maxmen3/CODES/bpz-1.99.3/SED/"
+
+source_planes:
+  n_planes: 100
+  z_source_max: 11.0
+  caustic_buffer_arcsec: 0.0
+
+pointsrc:
+  refine: false
+  use_lenstronomy: false
+
+output:
+  output_dir: "ltsimcat_output"
+  source_catalog: "simulated_sources.cat"
+  image_catalog: "simulated_images.cat"
+
+image_catalog:
+  img_maglim: 150.0
+
+validation:
+  enabled: true
+  zs_crit: [1.0, 3.0, 6.0]
+  show_convergence: true
+  output_figure: "validation_critical_lines_images.png"
+  output_caustics_figure: "validation_caustics_sources.png"
+  output_redshift_histogram: "validation_source_redshift_hist.png"
+  redshift_hist_bins: 30

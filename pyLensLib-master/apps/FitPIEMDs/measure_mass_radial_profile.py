@@ -1,0 +1,693 @@
+#!/usr/bin/env python3
+"""
+Measure the annular mass profile of a FITS mass map.
+
+The profile is computed around a user-specified sky position. The FITS WCS is
+used to convert the requested RA/Dec center into pixel coordinates, and the
+profile is measured in logarithmic or linear annuli.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+from pathlib import Path
+import sys
+import tempfile
+
+import numpy as np
+import pandas as pd
+from astropy.coordinates import SkyCoord
+from astropy.cosmology import FlatLambdaCDM
+from astropy.io import fits
+from astropy import units as u
+from astropy.wcs import WCS
+from astropy.wcs.utils import proj_plane_pixel_scales
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+cache_dir = tempfile.mkdtemp(prefix="pylenslib_cache_")
+os.environ.setdefault("MPLCONFIGDIR", cache_dir)
+os.environ.setdefault("XDG_CACHE_HOME", cache_dir)
+
+import matplotlib.pyplot as plt
+
+
+DEFAULT_RA_DEG = 64.0381039
+DEFAULT_DEC_DEG = -24.0674697
+DEFAULT_LENS_Z = 0.3960
+DEFAULT_H0 = 70.0
+DEFAULT_OM0 = 0.3
+MASS_UNIT_SCALE = 1e12
+DEFAULT_INPUT = Path(__file__).with_name("mass.fits")
+DEFAULT_OUTPUT_CSV = Path(__file__).with_name("mass_radial_profile.csv")
+DEFAULT_OUTPUT_PNG = Path(__file__).with_name("mass_radial_profile.png")
+
+
+# Default cosmology matches the common Lenstool setup used in this directory.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Measure the annular mass profile of a FITS mass map."
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DEFAULT_INPUT,
+        help=f"Input FITS image. Default: {DEFAULT_INPUT}",
+    )
+    parser.add_argument(
+        "--ra",
+        type=float,
+        default=DEFAULT_RA_DEG,
+        help=f"Center right ascension in degrees. Default: {DEFAULT_RA_DEG}",
+    )
+    parser.add_argument(
+        "--dec",
+        type=float,
+        default=DEFAULT_DEC_DEG,
+        help=f"Center declination in degrees. Default: {DEFAULT_DEC_DEG}",
+    )
+    parser.add_argument(
+        "--nbins",
+        type=int,
+        default=50,
+        help="Number of radial bins in the output profile.",
+    )
+    parser.add_argument(
+        "--rmin-pix",
+        type=float,
+        default=0.0,
+        help="Minimum radius in pixels.",
+    )
+    parser.add_argument(
+        "--rmax-pix",
+        type=float,
+        default=None,
+        help="Maximum radius in pixels. Default: largest fully contained circle around the chosen center.",
+    )
+    parser.add_argument(
+        "--logspace",
+        action="store_true",
+        help="Use logarithmic radial bins.",
+    )
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        default=DEFAULT_OUTPUT_CSV,
+        help=f"Output CSV path. Default: {DEFAULT_OUTPUT_CSV}",
+    )
+    parser.add_argument(
+        "--output-png",
+        type=Path,
+        default=DEFAULT_OUTPUT_PNG,
+        help=f"Output plot path. Default: {DEFAULT_OUTPUT_PNG}",
+    )
+    parser.add_argument(
+        "--lens-z",
+        type=float,
+        default=DEFAULT_LENS_Z,
+        help=f"Lens redshift used for kpc conversion. Default: {DEFAULT_LENS_Z}",
+    )
+    parser.add_argument(
+        "--h0",
+        type=float,
+        default=DEFAULT_H0,
+        help=f"Hubble constant used for kpc conversion. Default: {DEFAULT_H0}",
+    )
+    parser.add_argument(
+        "--om0",
+        type=float,
+        default=DEFAULT_OM0,
+        help=f"Matter density used for kpc conversion. Default: {DEFAULT_OM0}",
+    )
+    return parser.parse_args()
+
+
+def load_2d_map(path: Path) -> tuple[np.ndarray, fits.Header]:
+    with fits.open(path) as hdul:
+        data = np.asarray(hdul[0].data, dtype=float)
+        header = hdul[0].header.copy()
+
+    while data.ndim > 2:
+        data = data[0]
+    if data.ndim != 2:
+        raise ValueError(f"Expected a 2D FITS image after squeezing, got shape {data.shape}.")
+
+    return data, header
+
+
+def get_center_pixel(header: fits.Header, ra_deg: float, dec_deg: float) -> tuple[float, float]:
+    wcs = WCS(header, naxis=2)
+    sky_pos = SkyCoord(ra=ra_deg * u.deg, dec=dec_deg * u.deg)
+    x_pix, y_pix = wcs.world_to_pixel(sky_pos)
+    return float(x_pix), float(y_pix)
+
+
+def get_pixel_scale_arcsec(header: fits.Header) -> float:
+    wcs = WCS(header, naxis=2)
+    scales_deg = proj_plane_pixel_scales(wcs)
+    if len(scales_deg) < 2:
+        raise ValueError("Could not determine 2D pixel scale from FITS WCS.")
+    scales_arcsec = np.asarray(scales_deg, dtype=float) * 3600.0
+    return float(np.mean(scales_arcsec))
+
+
+def get_kpc_per_arcsec(lens_z: float, h0: float, om0: float) -> float:
+    cosmo = FlatLambdaCDM(H0=h0, Om0=om0)
+    return float(cosmo.kpc_proper_per_arcmin(lens_z).to_value(u.kpc / u.arcsec))
+
+
+def largest_inscribed_radius(shape: tuple[int, int], xcen: float, ycen: float) -> float:
+    ny, nx = shape
+    return float(min(xcen, nx - 1 - xcen, ycen, ny - 1 - ycen))
+
+
+def build_radial_edges(nbins: int, rmin_pix: float, rmax_pix: float, logspace: bool) -> np.ndarray:
+    if logspace:
+        return np.logspace(np.log10(rmin_pix), np.log10(rmax_pix), nbins + 1)
+    return np.linspace(rmin_pix, rmax_pix, nbins + 1)
+
+
+def measure_profile(
+    image: np.ndarray,
+    x_pix: float,
+    y_pix: float,
+    pixel_scale_arcsec: float,
+    kpc_per_arcsec: float,
+    nbins: int,
+    rmin_pix: float,
+    rmax_pix: float,
+    logspace: bool,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    if nbins < 1:
+        raise ValueError("nbins must be at least 1.")
+    if rmax_pix <= rmin_pix:
+        raise ValueError("rmax-pix must be greater than rmin-pix.")
+    if logspace and rmin_pix <= 0.0:
+        raise ValueError("logarithmic binning requires rmin-pix > 0.")
+
+    yy, xx = np.indices(image.shape)
+    radius = np.hypot(xx - x_pix, yy - y_pix)
+    finite = np.isfinite(image) & np.isfinite(radius)
+
+    edges = build_radial_edges(nbins, rmin_pix, rmax_pix, logspace)
+    if logspace:
+        centers_pix = np.sqrt(edges[:-1] * edges[1:])
+    else:
+        centers_pix = 0.5 * (edges[:-1] + edges[1:])
+
+    annulus_pixel_count = np.zeros(nbins, dtype=float)
+    annulus_mass_sum = np.full(nbins, np.nan, dtype=float)
+    annulus_mean_value = np.full(nbins, np.nan, dtype=float)
+    annulus_std_value = np.full(nbins, np.nan, dtype=float)
+
+    for i in range(nbins):
+        lo = edges[i]
+        hi = edges[i + 1]
+        if i == nbins - 1:
+            mask = finite & (radius >= lo) & (radius <= hi)
+        else:
+            mask = finite & (radius >= lo) & (radius < hi)
+
+        count = int(mask.sum())
+        if count == 0:
+            raise ValueError(
+                f"Bin {i} is empty. Increase the bin width or reduce nbins."
+            )
+
+        values = image[mask]
+        annulus_pixel_count[i] = count
+        annulus_mass_sum[i] = np.sum(values)
+        annulus_mean_value[i] = np.mean(values)
+        annulus_std_value[i] = np.std(values)
+
+    annulus_area_arcsec2 = annulus_pixel_count * (pixel_scale_arcsec ** 2)
+    annulus_area_kpc2 = annulus_area_arcsec2 * (kpc_per_arcsec ** 2)
+    annulus_mass_sum_msun = annulus_mass_sum * MASS_UNIT_SCALE
+    annulus_mass_per_area = annulus_mass_sum_msun / annulus_area_kpc2
+    annulus_mean_value_msun_per_pix = annulus_mean_value * MASS_UNIT_SCALE
+    annulus_std_value_msun_per_pix = annulus_std_value * MASS_UNIT_SCALE
+    annulus_mean_value_msun_per_kpc2 = annulus_mean_value_msun_per_pix / (
+        pixel_scale_arcsec ** 2 * kpc_per_arcsec ** 2
+    )
+    annulus_std_value_msun_per_kpc2 = annulus_std_value_msun_per_pix / (
+        pixel_scale_arcsec ** 2 * kpc_per_arcsec ** 2
+    )
+
+    centers_arcsec = centers_pix * pixel_scale_arcsec
+    centers_kpc = centers_arcsec * kpc_per_arcsec
+
+    good = (
+        np.isfinite(centers_pix)
+        & np.isfinite(centers_arcsec)
+        & np.isfinite(centers_kpc)
+        & np.isfinite(annulus_mass_sum)
+        & np.isfinite(annulus_mass_per_area)
+    )
+
+    return (
+        centers_pix[good],
+        centers_arcsec[good],
+        centers_kpc[good],
+        annulus_mass_sum_msun[good],
+        annulus_area_kpc2[good],
+        annulus_mass_per_area[good],
+        annulus_mean_value_msun_per_kpc2[good],
+        annulus_std_value_msun_per_kpc2[good],
+    )
+
+
+def save_profile_table(
+    output_csv: Path,
+    rb_pix: np.ndarray,
+    rb_arcsec: np.ndarray,
+    rb_kpc: np.ndarray,
+    annulus_mass_sum: np.ndarray,
+    annulus_area_kpc2: np.ndarray,
+    annulus_mass_per_area: np.ndarray,
+    annulus_mean_value: np.ndarray,
+    annulus_std_value: np.ndarray,
+) -> pd.DataFrame:
+    profile = pd.DataFrame(
+        {
+            "radius_pix": rb_pix,
+            "radius_arcsec": rb_arcsec,
+            "radius_kpc": rb_kpc,
+            "annulus_mass_sum_msun": annulus_mass_sum,
+            "annulus_area_kpc2": annulus_area_kpc2,
+            "annulus_mass_per_area_msun_per_kpc2": annulus_mass_per_area,
+            "annulus_mean_value_msun_per_kpc2": annulus_mean_value,
+            "annulus_std_value_msun_per_kpc2": annulus_std_value,
+        }
+    )
+    profile.attrs["y_unit"] = "Msun/kpc^2"
+    profile.attrs["x_unit"] = "kpc"
+    profile.to_csv(output_csv, index=False)
+    return profile
+
+
+
+
+def save_profile_plot(
+    output_png: Path,
+    profile: pd.DataFrame,
+    input_path: Path,
+    ra_deg: float,
+    dec_deg: float,
+) -> None:
+    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    y = profile["annulus_mass_per_area_msun_per_kpc2"].to_numpy()
+    ax.plot(profile["radius_kpc"], y, color="tab:blue", lw=2.0)
+
+    if np.any(np.isfinite(profile["annulus_std_value_msun_per_kpc2"].to_numpy())):
+        yerr = profile["annulus_std_value_msun_per_kpc2"].to_numpy()
+        ax.fill_between(
+            profile["radius_kpc"],
+            y - yerr,
+            y + yerr,
+            color="tab:blue",
+            alpha=0.2,
+        )
+
+    ax.set_xlabel("Radius [kpc]")
+    ax.set_ylabel(r"Annular mass surface density [$M_\odot\,\mathrm{kpc}^{-2}$]")
+    ax.set_title(f"{input_path.name}\nRA={ra_deg:.7f} deg, Dec={dec_deg:.7f} deg")
+    ax.grid(True, alpha=0.25)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    fig.tight_layout()
+    fig.savefig(output_png, dpi=160)
+    plt.close(fig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main() -> None:
+    args = parse_args()
+
+    image, header = load_2d_map(args.input)
+    xcen, ycen = get_center_pixel(header, args.ra, args.dec)
+
+    ny, nx = image.shape
+    if not (0.0 <= xcen <= nx - 1 and 0.0 <= ycen <= ny - 1):
+        raise ValueError(
+            f"Requested sky center maps outside the image: x={xcen:.3f}, y={ycen:.3f}, "
+            f"image shape={(ny, nx)}"
+        )
+
+    rmax_pix = args.rmax_pix
+    if rmax_pix is None:
+        rmax_pix = largest_inscribed_radius(image.shape, xcen, ycen)
+    if rmax_pix <= 0.0:
+        raise ValueError("Computed rmax-pix is non-positive. Check the requested center.")
+
+    pixel_scale_arcsec = get_pixel_scale_arcsec(header)
+    kpc_per_arcsec = get_kpc_per_arcsec(args.lens_z, args.h0, args.om0)
+    (
+        rb_pix,
+        rb_arcsec,
+        rb_kpc,
+        annulus_mass_sum,
+        annulus_area_kpc2,
+        annulus_mass_per_area,
+        annulus_mean_value,
+        annulus_std_value,
+    ) = measure_profile(
+        image=image,
+        x_pix=xcen,
+        y_pix=ycen,
+        pixel_scale_arcsec=pixel_scale_arcsec,
+        kpc_per_arcsec=kpc_per_arcsec,
+        nbins=args.nbins,
+        rmin_pix=args.rmin_pix,
+        rmax_pix=rmax_pix,
+        logspace=args.logspace,
+    )
+    _ = annulus_area_kpc2
+
+    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
+    args.output_png.parent.mkdir(parents=True, exist_ok=True)
+
+    profile = save_profile_table(
+        output_csv=args.output_csv,
+        rb_pix=rb_pix,
+        rb_arcsec=rb_arcsec,
+        rb_kpc=rb_kpc,
+        annulus_mass_sum=annulus_mass_sum,
+        annulus_area_kpc2=annulus_area_kpc2,
+        annulus_mass_per_area=annulus_mass_per_area,
+        annulus_mean_value=annulus_mean_value,
+        annulus_std_value=annulus_std_value,
+    )
+
+    # Remove the unused angular-radius and mass-sum columns from the printout.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    save_profile_plot(
+        output_png=args.output_png,
+        profile=profile,
+        input_path=args.input,
+        ra_deg=args.ra,
+        dec_deg=args.dec,
+    )
+
+    print(f"Input map: {args.input}")
+    print(f"Image shape: {image.shape}")
+    print(f"Center sky position: RA={args.ra:.7f} deg, Dec={args.dec:.7f} deg")
+    print(f"Center pixel: x={xcen:.3f}, y={ycen:.3f}")
+    print(f"Pixel scale: {pixel_scale_arcsec:.6f} arcsec/pixel")
+    print(f"Measured bins: {len(profile)}")
+    print(f"Maximum radius: {rmax_pix:.3f} pix = {rmax_pix * pixel_scale_arcsec:.3f} arcsec")
+    print(f"Saved profile table to: {args.output_csv}")
+    print(f"Saved profile plot to: {args.output_png}")
+
+
+if __name__ == "__main__":
+    main()

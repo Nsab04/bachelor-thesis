@@ -1,0 +1,324 @@
+\documentclass{aa}
+
+\usepackage{graphicx}
+\usepackage{txfonts}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{siunitx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{The concentration-mass relation of cluster galaxies from strong lensing}
+
+\author{M.~Meneghetti\inst{1}}
+
+\institute{INAF -- Osservatorio di Astrofisica e Scienza dello Spazio di Bologna, via Gobetti 93/3, 40129 Bologna, Italy}
+
+\date{Received --; accepted --}
+
+\abstract
+{We present a strong-lensing-based analysis of the concentration-mass relation of galaxy-scale halos in four massive clusters. The analysis is implemented with the scripts \texttt{fit\_bergamini\_bmo\_free\_jaffe\_grid.py} and \texttt{tutorial\_density\_profile\_fits.ipynb}.}
+{Our goal is to map the PIEMD description of cluster members, commonly adopted in parametric lens models, onto a physically interpretable stellar+dark-matter decomposition and to infer the implied $c_{200}$--$M_{200}$ relation.}
+{We model each galaxy total density as a singular PIEMD and fit it with the sum of a Jaffe stellar component and a truncated NFW-like dark-matter component in BMO form with outer slope matched to the PIEMD truncation behavior. We quantify fitting quality and derive $c_{200}$ and $M_{200}$ from the best-fit BMO parameters. We then calibrate empirical relations linking $(\sigma_0,r_{\rm cut})$ and $(c_{200},M_{200})$ for MACSJ0416, MACSJ1206, AS1063, and A2744.}
+{The Jaffe+BMO decomposition reproduces PIEMD profiles with very small residuals (typical median $\mathrm{RMSE}_{\log\rho}\simeq 0.045$ dex and $R^2_{\log\rho}\simeq0.99998$ in all clusters). The inferred concentration levels are high, with median $c_{200}\sim 19$--$61$ over median masses $M_{200}\sim 0.9$--$2.9\times10^{11}\,M_\odot$, depending on cluster. We extend the empirical mapping with an explicit redshift term based on $\rho_{\rm crit}(z)$, which removes the large normalization mismatch found for high-$z$ external validation (El Gordo). Relative to LCDM benchmark relations (Duffy et al. and Dutton \& Macci\`o), observed concentrations remain larger by factors of $\sim2.3$--$9.6$ at fixed mass.}
+{Within this modeling framework, galaxy-scale halos in cluster cores appear significantly over-concentrated compared with standard LCDM expectations. We also find tension between lensing-inferred stellar normalizations and photometric stellar-mass estimates (notably in MACSJ0416), suggesting either residual systematics in the PIEMD-based decomposition or in the adopted photometric mass calibration.}
+
+\keywords{gravitational lensing: strong -- galaxies: clusters: general -- galaxies: halos -- dark matter -- methods: data analysis}
+
+\section{Introduction}
+Strong lensing by galaxy clusters provides one of the most direct constraints on the projected mass distribution in dense environments \citep{Bartelmann2001}. Modern parametric reconstructions represent the cluster mass as the superposition of a few large-scale halos and many galaxy-scale subhalos, allowing precise recovery of critical curves and multiple-image configurations \citep{Kneib1996,Jullo2007}.
+
+A standard choice for the galaxy-scale component is the pseudo-isothermal elliptical mass distribution (PIEMD, or dPIE in the spherical limit), often with vanishing core radius for cluster members \citep{Jullo2007,Bergamini2019}. In this formalism, galaxy parameters are linked through luminosity-based scaling laws, reducing the dimensionality of the model and enabling efficient optimization against large sets of lensing constraints.
+
+The main limitation is interpretability: PIEMD parameters are convenient for lens modeling, but they are not directly equivalent to physically motivated stellar and dark-matter decompositions. In particular, concentrations and virial masses are naturally defined for NFW-like halos \citep{NFW1997}, while stellar masses are more naturally tied to centrally concentrated baryonic profiles.
+
+This work addresses that gap. Using the local analysis pipeline in \texttt{fit\_bergamini\_bmo\_free\_jaffe\_grid.py} and \texttt{tutorial\_density\_profile\_fits.ipynb}, we decompose PIEMD galaxy profiles into a Jaffe stellar component plus a truncated NFW-like dark-matter component (BMO form), then derive the implied $c_{200}$--$M_{200}$ relations for four clusters. The paper emphasizes methodology and reproducible quantitative outputs from these scripts.
+
+\section{Methodology}
+
+\subsection{Modeling of cluster galaxies}
+Cluster strong-lensing models are built as a sum of:
+\begin{enumerate}
+\item large-scale cluster halos, and
+\item a population of galaxy-scale halos associated with member galaxies.
+\end{enumerate}
+
+For the galaxy component, we adopt spherical PIEMD profiles with $r_{\rm core}\to 0$ (the choice used in the fitting workflow; \citealt{Jullo2007,Bergamini2019}):
+\begin{equation}
+\rho_{\rm PIEMD}(r)=\frac{\sigma_0^2}{2\pi G}\,\frac{r_{\rm cut}^2}{r^2(r^2+r_{\rm cut}^2)}.
+\label{eq:piemd_singular}
+\end{equation}
+For completeness, the finite-core expression is
+\begin{equation}
+\rho_{\rm PIEMD}(r)=\frac{\sigma_0^2}{2\pi G}\frac{r_{\rm cut}+r_{\rm core}}{r_{\rm core}^2 r_{\rm cut}}\frac{1}{\left(1+r^2/r_{\rm core}^2\right)\left(1+r^2/r_{\rm cut}^2\right)}.
+\label{eq:piemd_full}
+\end{equation}
+
+In parametric lensing reconstructions, $\sigma_0$ and $r_{\rm cut}$ are usually tied to galaxy luminosity $L$ through power-law scalings:
+\begin{equation}
+\sigma_0 = \sigma_{0,\star}\left(\frac{L}{L_\star}\right)^{\alpha},
+\qquad
+r_{\rm cut}=r_{{\rm cut},\star}\left(\frac{L}{L_\star}\right)^{\delta}.
+\label{eq:lum_scalings}
+\end{equation}
+Eliminating $L$ gives
+\begin{equation}
+r_{\rm cut}=r_{{\rm cut},\star}\left(\frac{\sigma_0}{\sigma_{0,\star}}\right)^{\beta},
+\qquad \beta=\delta/\alpha.
+\label{eq:rcut_sigma}
+\end{equation}
+This is the relation used and measured in our workflow.
+
+\subsection{Decomposing the PIEMD}
+We model each PIEMD profile as
+\begin{equation}
+\rho_{\rm PIEMD}(r) \simeq \rho_{\rm Jaffe}(r;M_\star,r_J) + \rho_{\rm BMO}(r;\rho_s,r_s,r_t),
+\label{eq:decomp}
+\end{equation}
+where the stellar component is \citep{Jaffe1983}
+\begin{equation}
+\rho_{\rm Jaffe}(r)=\frac{M_\star r_J}{4\pi r^2(r+r_J)^2},
+\label{eq:jaffe}
+\end{equation}
+and the dark-matter component is a smoothly truncated NFW profile in BMO form \citep{Baltz2009}, based on the NFW family \citep{NFW1996,NFW1997}:
+\begin{equation}
+\rho_{\rm BMO}(r)=\frac{\rho_s}{x(1+x)^2}\left(\frac{\tau^2}{x^2+\tau^2}\right)^{1/2},
+\qquad x\equiv r/r_s,\ \tau\equiv r_t/r_s.
+\label{eq:bmo}
+\end{equation}
+With $n=1/2$ in Eq.~\ref{eq:bmo}, the asymptotic slope is close to $r^{-4}$, consistent with the large-radius PIEMD truncation behavior.
+
+The fits are performed in log-density space over each galaxy radial grid, solving for $(r_s,r_t,\rho_s,M_\star,r_J)$. The quality metrics saved by the pipeline are $\mathrm{RMSE}_{\log\rho}$ and $R^2_{\log\rho}$. For the four cluster runs used here, the median values are:
+\begin{equation}
+\mathrm{median}(\mathrm{RMSE}_{\log\rho})\approx 0.045\ \mathrm{dex},
+\qquad
+\mathrm{median}(R^2_{\log\rho})\approx 0.99998,
+\end{equation}
+with small cluster-to-cluster scatter.
+
+Figure~\ref{fig:mosaic} shows a 3\,$\times$\,3 subset of PIEMD profiles and best-fit Jaffe+BMO decompositions.
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.92\textwidth]{bergamini_bmo_free_jaffe_profiles_mosaic_3x3.png}
+\caption{Examples of PIEMD profile decompositions into Jaffe (stellar) + BMO (dark matter), extracted from the fit products of \texttt{fit\_bergamini\_bmo\_free\_jaffe\_grid.py}. Each panel reports $\sigma_0$, $r_{\rm cut}$, best-fit $c_{200}$, $M_{200}$, and log-space fit RMSE.}
+\label{fig:mosaic}
+\end{figure*}
+
+\subsection{Data}
+We analyze reconstructions for MACSJ0416, MACSJ1206, AS1063, and A2744, following the Bergamini et al. model family \citep{Bergamini2019,Bergamini2023a,Bergamini2023b}. Redshifts and component counts are read from the local LensTool \texttt{.par} files used by the scripts. Multiple-image and source-family counts are taken from the corresponding published model papers.
+
+Table~\ref{tab:data} summarizes the key properties used in this work.
+
+\begin{table*}
+\centering
+\begin{threeparttable}
+\caption{Cluster sample and model characteristics used in this analysis.}
+\label{tab:data}
+\begin{tabular}{lccccccc}
+\toprule
+Cluster & $z_{\rm lens}$ & Main data sets & $N_{\rm LS}$ & $N_{\rm gal}$ & $N_{\rm mult}$ & $N_{\rm src}$ & Reference \\
+\midrule
+MACSJ0416 & 0.3960 & HST imaging + VLT/MUSE spectroscopy & 10 & 212 & 237 & 88 & \citealt{Bergamini2023a} \\
+MACSJ1206 & 0.4390 & HST imaging + VLT/MUSE spectroscopy & 7 & 258 & 82 & 27 & \citealt{Bergamini2019} \\
+AS1063    & 0.3480 & HST imaging + VLT/MUSE spectroscopy & 5 & 222 & 55 & 20 & \citealt{Bergamini2019} \\
+A2744     & 0.3072 & HST/JWST imaging + spectroscopy & 9 & 171 & 149 & 50 & \citealt{Bergamini2023b} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item $N_{\rm LS}$ and $N_{\rm gal}$ are counted from the local \texttt{.par} realizations (components without and with \texttt{mag}, respectively). Multiple-image/source counts are literature values for the corresponding published model generation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}
+
+\section{Results}
+
+\subsection{Concentration-Mass relation}
+From each best-fit BMO halo, we compute $R_{200}$, $M_{200}$, and $c_{200}=R_{200}/r_s$. The derived concentration-mass trends are cluster dependent and very tight in each run. The median values are:
+\begin{itemize}
+\item MACSJ0416: $\tilde{c}_{200}=22.75$, $\widetilde{M}_{200}=2.34\times10^{11}\,M_\odot$,
+\item MACSJ1206: $\tilde{c}_{200}=61.37$, $\widetilde{M}_{200}=9.28\times10^{10}\,M_\odot$,
+\item AS1063: $\tilde{c}_{200}=49.14$, $\widetilde{M}_{200}=1.18\times10^{11}\,M_\odot$,
+\item A2744: $\tilde{c}_{200}=19.32$, $\widetilde{M}_{200}=2.90\times10^{11}\,M_\odot$.
+\end{itemize}
+
+The fitted log-slopes of the measured relations, $\log_{10}c_{200}=a+b\log_{10}(M_{200}/10^{12}M_\odot)$, are listed in Table~\ref{tab:rels} and span from $b\approx-0.23$ (AS1063) to $b\approx0$ (A2744).
+
+\subsection{Parametric modeling of galaxy concentrations}
+Figure~\ref{fig:sigrcut} shows the measured $\sigma_0$--$r_{\rm cut}$ relations. For each cluster we fit
+\begin{equation}
+r_{\rm cut}=r_{{\rm cut},\mathrm{ref}}\left(\frac{\sigma_0}{220\,\mathrm{km\,s^{-1}}}\right)^\beta.
+\label{eq:sigrcut_fit}
+\end{equation}
+
+We then map $(\sigma_0,\beta,r_{{\rm cut},\mathrm{ref}},z)$ into $(M_{200},c_{200})$ using the two-stage empirical model implemented in \texttt{tutorial\_density\_profile\_fits.ipynb}. Defining
+\begin{equation}
+x\equiv\log_{10}\left(\frac{\sigma_0}{220}\right),\quad
+u\equiv\log_{10}\left(\frac{r_{{\rm cut},\mathrm{ref}}}{10\,\mathrm{kpc}}\right),\quad
+v\equiv\beta,
+\end{equation}
+we write
+\begin{equation}
+\log_{10}\left(\frac{M_{200}}{10^{12}M_\odot}\right)=a_M+b_Mx,
+\quad
+\log_{10}(c_{200})=a_c+b_cx,
+\end{equation}
+with
+\begin{align}
+a_M &= -0.5296 + 0.9376\,u + 0.0020\,v,\\
+b_M &=  2.1215 - 0.1385\,u + 0.9502\,v,\\
+a_c &=  1.6437 - 0.6875\,u - 0.00037\,v,\\
+b_c &=  0.6894 + 0.00789\,u - 0.6941\,v.
+\end{align}
+To account for redshift dependence in the conversion between BMO parameters and $(M_{200},c_{200})$, we define
+\begin{equation}
+q(z)\equiv \log_{10}\left[\frac{\rho_{\rm crit}(z)}{\rho_{\rm crit}(z_{\rm ref})}\right],\qquad z_{\rm ref}=0.396,
+\end{equation}
+consistent with the expected role of evolving reference density and pseudo-evolution in halo-based quantities \citep{Diemer2013,DiemerKravtsov2015}.
+and apply
+\begin{align}
+\log_{10}\left(\frac{M_{200}}{10^{12}M_\odot}\right) &= a_M+b_Mx+\gamma_M q(z),\\
+\log_{10}(c_{200}) &= a_c+b_cx+\gamma_C q(z).
+\end{align}
+The fitted redshift coefficients in the notebook calibration are
+\begin{equation}
+\gamma_M=-0.0333,\qquad \gamma_C=-0.3444.
+\end{equation}
+
+The resulting predicted $c_{200}$--$M_{200}$ relations match the measured ones very well (global residuals $\mathrm{RMS}(\log M)\simeq 0.0034$ dex and $\mathrm{RMS}(\log c)\simeq 0.0013$ dex for the calibration set). Figure~\ref{fig:cm_emp} shows the agreement.
+
+For external validation on previously unused clusters (PLCK-G287 and El Gordo), adding the redshift term reduces the median concentration residual from $0.0450$ dex (no-$z$ model) to $0.0066$ dex (redshift-aware model). In El Gordo specifically, the concentration mismatch decreases from $\mathrm{RMS}(\Delta\log c)\simeq 0.0866$ to $\simeq 0.0112$ dex.
+
+\begin{figure}
+\centering
+\includegraphics[width=\hsize]{tutorial_sigma0_vs_rcut_bergamini_bmo_clusters.png}
+\caption{$\sigma_0$--$r_{\rm cut}$ relations for the four clusters, from \texttt{tutorial\_density\_profile\_fits.ipynb}. Different $(r_{\rm cut,ref},\beta)$ pairs map into different $c_{200}$--$M_{200}$ families.}
+\label{fig:sigrcut}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\hsize]{tutorial_c200_m200_bergamini_bmo_comparison.png}
+\caption{Measured and empirical-predicted $c_{200}$--$M_{200}$ relations for each cluster (data-driven calibration only).}
+\label{fig:cm_emp}
+\end{figure}
+
+\begin{table*}
+\centering
+\caption{Empirical relation parameters from the cluster-by-cluster fits.}
+\label{tab:rels}
+\begin{tabular}{lcccccc}
+\toprule
+Cluster & $N$ & $r_{\rm cut,ref}$ [kpc] & $\beta$ & $\mathrm{d}\log c/\mathrm{d}\log M$ & $\tilde{c}_{200}$ & $\widetilde{M}_{200}$ [$M_\odot$] \\
+\midrule
+MACSJ0416 & 201 & 38.40 & 2.000 & -0.1768 & 22.75 & $2.34\times10^{11}$ \\
+MACSJ1206 & 151 & 8.20  & 2.281 & -0.2089 & 61.37 & $9.28\times10^{10}$ \\
+AS1063    & 160 & 12.44 & 2.493 & -0.2312 & 49.14 & $1.18\times10^{11}$ \\
+A2744     & 201 & 33.40 & 1.022 & -0.0049 & 19.32 & $2.90\times10^{11}$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Discussion}
+
+\subsection{Overconcentration of cluster galaxies}
+Figure~\ref{fig:cm_lcdm} compares the empirical cluster relations with standard LCDM concentration-mass prescriptions \citep{Duffy2008,DuttonMaccio2014}. At the median masses of our samples, observed concentrations exceed these expectations by factors of about 2.3--9.6 depending on the cluster.
+
+The offset is largest in MACSJ1206 and AS1063, and smaller (but still significant) in MACSJ0416 and A2744. This cluster-to-cluster variation likely reflects a combination of genuine environmental differences and modeling systematics (e.g., parametric form rigidity, selection of subhalos strongly constrained by lensing, and central-region weighting).
+
+\begin{figure}
+\centering
+\includegraphics[width=\hsize]{tutorial_c200_m200_bergamini_bmo_with_lcdm.png}
+\caption{Empirical $c_{200}$--$M_{200}$ relations compared to LCDM benchmark trends (Duffy et al.; Dutton \& Macci\`o). The observed relations are systematically shifted to higher concentrations at fixed mass.}
+\label{fig:cm_lcdm}
+\end{figure}
+
+\subsection{Inconsistency with stellar masses}
+The Jaffe component provides a lensing-based estimate of the stellar normalization. For MACSJ0416, comparing the fitted stellar normalization with the photometric estimate (derived from the F160W-based calibration used in the pipeline, in the spirit of \citealt{Grillo2015}) yields a median ratio
+\begin{equation}
+\mathrm{median}\left(M_{\star,\mathrm{lens}}/M_{\star,\mathrm{phot}}\right)\simeq 1.96,
+\end{equation}
+with a broad distribution.
+
+This mismatch indicates that either:
+\begin{enumerate}
+\item the PIEMD-based decomposition is forcing part of the central dark matter into the stellar term,
+\item the assumed stellar profile family (Jaffe) is not fully capturing real inner structure, and/or
+\item the photometric stellar-mass calibration is biased for these cluster members.
+\end{enumerate}
+
+Figure~\ref{fig:mstar} shows the global comparison from the BMO+Jaffe dual-fit outputs.
+
+\begin{figure}
+\centering
+\includegraphics[width=\hsize]{tutorial_section9_1_mstar_comparison.png}
+\caption{Stellar-mass comparison from Sect.~9.1 of \texttt{tutorial\_density\_profile\_fits.ipynb}: photometric estimate versus free-Jaffe fit (left), and distribution of $\log_{10}(M_{\star}^{\rm free}/M_{\star}^{\rm phot})$ (right).}
+\label{fig:mstar}
+\end{figure}
+
+\section{Summary and conclusions}
+We developed and applied a reproducible workflow to translate PIEMD cluster-member models into a physically interpretable Jaffe+BMO decomposition, and to derive the implied $c_{200}$--$M_{200}$ relation for galaxy-scale halos in cluster cores.
+
+Main results:
+\begin{itemize}
+\item PIEMD profiles are fitted by Jaffe+BMO with excellent accuracy (median $\mathrm{RMSE}_{\log\rho}\approx 0.045$ dex, median $R^2_{\log\rho}\approx 0.99998$).
+\item Cluster-specific $\sigma_0$--$r_{\rm cut}$ relations differ substantially, with $(r_{\rm cut,ref},\beta)$ varying from $(8.2,2.28)$ in MACSJ1206 to $(38.4,2.00)$ in MACSJ0416.
+\item These differences map directly into distinct $c_{200}$--$M_{200}$ relations.
+\item The empirical parameterization implemented in \texttt{tutorial\_density\_profile\_fits.ipynb} reproduces the measured relations with residuals at the $10^{-3}$ dex level for this dataset.
+\item A redshift-aware correction based on $\rho_{\rm crit}(z)$ is required for robust transfer to higher-$z$ clusters; it strongly improves external validation (notably El Gordo).
+\item In all clusters, inferred concentrations are significantly above standard LCDM expectations at fixed mass.
+\item Stellar masses inferred from the lensing decomposition can disagree with photometric estimates, highlighting a key systematic that must be controlled in future analyses.
+\end{itemize}
+
+Future work should include a hierarchical model combining all clusters simultaneously, explicit treatment of covariance between scaling-law parameters, and tests with alternative stellar and dark-matter profile families.
+
+\begin{thebibliography}{}
+\bibitem[Baltz et al.(2009)]{Baltz2009}
+Baltz, E. A., Marshall, P., \& Oguri, M. 2009, JCAP, 01, 015
+
+\bibitem[Bartelmann \& Schneider(2001)]{Bartelmann2001}
+Bartelmann, M., \& Schneider, P. 2001, Phys. Rep., 340, 291
+
+\bibitem[Bergamini et al.(2019)]{Bergamini2019}
+Bergamini, P., Rosati, P., Grillo, C., et al. 2019, A\&A, 631, A130
+
+\bibitem[Bergamini et al.(2023a)]{Bergamini2023a}
+Bergamini, P., Grillo, C., Rosati, P., et al. 2023a, A\&A, 674, A79
+
+\bibitem[Bergamini et al.(2023b)]{Bergamini2023b}
+Bergamini, P., Acebron, A., Grillo, C., et al. 2023b, ApJ, 952, 84
+
+\bibitem[Diemer et al.(2013)]{Diemer2013}
+Diemer, B., More, S., \& Kravtsov, A. V. 2013, ApJ, 766, 25
+
+\bibitem[Diemer \& Kravtsov(2015)]{DiemerKravtsov2015}
+Diemer, B., \& Kravtsov, A. V. 2015, ApJ, 799, 108
+
+\bibitem[Duffy et al.(2008)]{Duffy2008}
+Duffy, A. R., Schaye, J., Kay, S. T., \& Dalla Vecchia, C. 2008, MNRAS, 390, L64
+
+\bibitem[Dutton \& Macci\`o(2014)]{DuttonMaccio2014}
+Dutton, A. A., \& Macci\`o, A. V. 2014, MNRAS, 441, 3359
+
+\bibitem[Grillo et al.(2015)]{Grillo2015}
+Grillo, C., Karman, W., Suyu, S. H., et al. 2015, ApJ, 800, 38
+
+\bibitem[Jaffe(1983)]{Jaffe1983}
+Jaffe, W. 1983, MNRAS, 202, 995
+
+\bibitem[Jullo et al.(2007)]{Jullo2007}
+Jullo, E., Kneib, J.-P., Limousin, M., et al. 2007, New J. Phys., 9, 447
+
+\bibitem[Kneib et al.(1996)]{Kneib1996}
+Kneib, J.-P., Ellis, R. S., Smail, I., Couch, W. J., \& Sharples, R. M. 1996, ApJ, 471, 643
+
+\bibitem[Navarro et al.(1996)]{NFW1996}
+Navarro, J. F., Frenk, C. S., \& White, S. D. M. 1996, ApJ, 462, 563
+
+\bibitem[Navarro et al.(1997)]{NFW1997}
+Navarro, J. F., Frenk, C. S., \& White, S. D. M. 1997, ApJ, 490, 493
+\end{thebibliography}
+
+\end{document}

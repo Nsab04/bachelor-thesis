@@ -4,6 +4,7 @@
 ## Custom
 *.patch
 *.sty
+*:Zone.Identifier
 
 
 ## PDFs

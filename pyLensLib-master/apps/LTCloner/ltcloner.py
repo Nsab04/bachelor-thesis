@@ -1,0 +1,1205 @@
+import os
+import sys
+import yaml
+import numpy as np
+import pandas as pd
+from scipy.spatial import ConvexHull
+from pyLensLib.lenstool import *
+from pyLensLib.deflector import deflector
+import lenstool
+from lenstool.potentials import dpie
+from matplotlib.colors import LogNorm, AsinhNorm
+import matplotlib.pyplot as plt
+from astropy.cosmology import FlatLambdaCDM
+from pyLensLib.srccatalog import srccatalog
+from astropy.table import Table
+import subprocess
+from collections import Counter, defaultdict
+from pyLensLib.pointsrc import pointsrc
+
+from matplotlib import cm
+from matplotlib.colors import ListedColormap
+
+# replace the ProPlot colormap with a Matplotlib approximation
+def blended_colormap(names, ratios, subranges=None, N=256, name="blended"):
+    """
+    Make a ListedColormap by concatenating segments from existing colormaps.
+    - names: list of colormap names (e.g., ["Greys_r", "YlOrBr"])
+    - ratios: relative lengths of each segment (same length as names)
+    - subranges: optional list of (lo, hi) for each segment in [0, 1]
+    """
+    ratios = list(ratios)
+    total = float(sum(ratios))
+    counts = [max(1, int(N * r / total)) for r in ratios]
+    counts[-1] = max(1, N - sum(counts[:-1]))  # exact N
+
+    colors = []
+    for i, (cname, count) in enumerate(zip(names, counts)):
+        lo, hi = (0.0, 1.0) if subranges is None or subranges[i] is None else subranges[i]
+        cmap = cm.get_cmap(cname)
+        samples = np.linspace(lo, hi, count)
+        colors.append(cmap(samples))
+    return ListedColormap(np.vstack(colors), name=name)
+
+# approximate ProPlot's 'Oranges1', 'Blues1_r', 'Blues6' with Matplotlib defaults
+
+cmap4 = blended_colormap(
+    names=["Greys_r", "Oranges", "Blues_r", "Blues"],
+    ratios=(1, 3, 5, 10),
+    N=256,
+    name="SciVisColorUnevenGrey",
+)
+
+cmap_greys_gold = blended_colormap(
+    names=["Greys_r", "YlOrBr_r"],
+    ratios=(1, 3),                # more room for greys, tune to taste
+    subranges=[(0.0, 0.5), (0.0, 1.0)],
+    N=256,
+    name="GreysToGold"
+)
+
+cosmic_web = blended_colormap(
+    names     = ["Blues_r", "PuBu", "YlOrBr"],
+    ratios    = [0.70, 0.15, 0.15],             # long cool range, short warm tip
+    subranges = [(0.20, 0.85), (0.25, 0.90), (0.35, 1.00)],
+    name="cosmic_web"
+)
+
+cosmic_web_c = blended_colormap(
+    names     = ["cividis_r", "afmhot_r"],
+    ratios    = [0.5, 0.5],
+    subranges = [(0.50, 1.00), (0.5, 1.00)],
+    name="cosmic_web_c"
+)
+
+class Config:
+    """Configuration class to load parameters from YAML file"""
+
+    def __init__(self, config_file):
+        """Load configuration from YAML file"""
+        if not os.path.exists(config_file):
+            raise FileNotFoundError(f"Configuration file not found: {config_file}")
+
+        with open(config_file, 'r') as f:
+            config = yaml.safe_load(f)
+
+        # Required parameters
+        self.parfile = config['parfile']
+        self.nmodels = config['nmodels']
+
+        # Magnitude limits
+        self.mmin = config.get('mmin', 17.0)
+        self.mmax = config.get('mmax', 26.0)
+
+        # Random seed
+        self.seed = config.get('seed', 42)
+
+        # Distribution measurement
+        self.nbinr = config.get('nbinr', 5)
+
+        # Field of view
+        self.fieldsize = config.get('fieldsize', 100.0)
+
+        # Source and image parameters
+        self.src_maglim = config.get('src_maglim', 30.0)
+        self.img_maglim = config.get('img_maglim', 30.0)
+
+        # BCG parameters
+        self.bcg = config.get('bcg', 1)
+        self.bcg_offset = config.get('bcg_offset', 1.0)
+        self.bcg_elloffset = config.get('bcg_elloffset', 0.2)
+        self.bcg_paoffset = config.get('bcg_paoffset', 10.0)
+
+        # Model geometry
+        self.opening_angle = config.get('opening_angle', 180.0)
+
+        # Scaling relations
+        self.scatter = config.get('scatter', 0.5)
+        self.scatter_sigma = config.get('scatter_sigma', None)
+        self.scatter_rcut = config.get('scatter_rcut', None)
+        self.rho_sigma_rcut = config.get('rho_sigma_rcut', 0.0)
+        self.tolerance = config.get('tolerance', 0.1)
+
+        # Flags
+        self.nullify_ellipticity = config.get('nullify_ellipticity', False)
+        self.lens = config.get('lens', False)
+        self.test = config.get('test', False)
+        self.compute_cs = config.get('compute_cs', False)
+
+        # Output
+        self.output_dir = config.get('output_dir', 'generated_models')
+
+        # Experiments
+        self.rs_fact = config.get('rs_fact', 1.0)
+
+    def __repr__(self):
+        """String representation of configuration"""
+        lines = ["Configuration:"]
+        lines.append(f"  parfile: {self.parfile}")
+        lines.append(f"  nmodels: {self.nmodels}")
+        lines.append(f"  output_dir: {self.output_dir}")
+        lines.append(f"  fieldsize: {self.fieldsize} arcsec")
+        lines.append(f"  seed: {self.seed}")
+        return "\n".join(lines)
+
+def compute_area_from_galaxies(gals,test=False):
+    positions = []
+    for g in gals:
+        x = findInBlock(g, 'x_centre')
+        y = findInBlock(g, 'y_centre')
+        if x is not None and y is not None:
+            positions.append([float(x), float(y)])
+    if len(positions) < 3:
+        raise ValueError("Not enough galaxies to define a convex hull.")
+    positions = np.array(positions)  # Convert to numpy array for slicing
+    hull = ConvexHull(positions)
+    if test:
+        print(f"Convex hull vertices: {hull.vertices}")
+        fig,ax = plt.subplots(1,1,figsize=(10,10))
+        ax.plot(positions[:, 0], positions[:, 1], 'o', color='blue')
+        for simplex in hull.simplices:
+            ax.plot(positions[simplex, 0], positions[simplex, 1], 'k-')
+        ax.set_title("Convex Hull of Galaxy Positions")
+        ax.set_xlabel("X (arcsec)")
+        ax.set_ylabel("Y (arcsec)")
+        ax.set_aspect('equal')
+        plt.show()
+        plt.close(fig)
+        return hull.volume  # Area in arcsec^2 for testing
+    else:
+        # For actual area calculation, we return the area in arcsec^2
+        print(f"Convex hull area: {hull.volume} arcsec^2")
+    return hull.volume  # Area in arcsec^2
+
+def compute_Lim_Mag_from_galaxies(gals):
+    mags = []
+    for g in gals:
+        mag = findInBlock(g, 'mag')
+        if mag is not None:
+            mags.append(float(mag))
+    if len(mags) == 0:
+        raise ValueError("No magnitudes found in galaxy data.")
+    lim_mag = max(mags)
+    print(f"Computed limiting magnitude from galaxies: {lim_mag:.2f}")
+    return lim_mag
+
+def computeMaxDist(potentiel):
+    maxdist = 0.0
+    for pot in potentiel:
+        x = findInBlock(pot, 'x_centre')
+        y = findInBlock(pot, 'y_centre')
+        v = findInBlock(pot, 'v_disp')
+        mag = findInBlock(pot, 'mag')
+        if x is not None and y is not None and v is not None and mag is not None:
+            dist = np.sqrt(x ** 2 + y ** 2)
+            if dist > maxdist:
+                maxdist = dist
+    print(f"Maximum distance from center: {maxdist:.2f} arcsec")
+    return maxdist
+
+def writeLenstoolPar(filename='output.par', **blocks):
+    writeLenstoolBlock(filename, "runmode", blocks['runmode'], append=False)
+    writeLenstoolBlock(filename, "grille", blocks['grille'], append=True)
+    writeLenstoolBlock(filename, "potentiel", blocks['potentiel'], append=True)
+    writeLenstoolBlock(filename, "cline", blocks['cline'], append=True)
+    writeLenstoolBlock(filename, "grande", blocks['grande'], append=True)
+    writeLenstoolBlock(filename, "cosmologie", blocks['cosmologie'], append=True)
+    writeLenstoolBlock(filename, "champ", blocks['champ'], finalize=True, append=True)
+
+def runTestRadialDistribution(r, density, err_density, popt, outdir, fshow=False,
+                              r_overplot=None, density_overplot=None, err_density_overplot=None,sim_id=1):
+    fig,ax = plt.subplots(1,1,figsize=(10,8))
+    ax.errorbar(r, density, yerr=err_density, fmt='o', label='Measured')
+    if r_overplot is not None and density_overplot is not None:
+        ax.errorbar(r_overplot, density_overplot, yerr=err_density_overplot, fmt='s', label='Generated Data')
+    r_fit = np.linspace(r.min(), r.max(), 300)
+    ax.plot(r_fit, projected_NFW(r_fit, *popt), '-', label='NFW Fit')
+    ax.set_xlabel("Radius")
+    ax.set_ylabel("Surface number density")
+    ax.legend()
+    ax.grid(True)
+    if fshow:
+        plt.show()
+    fig.savefig(os.path.join(outdir, f'simulated_model_{sim_id+1:03d}_radialdistribution.png'))
+    plt.close(fig)
+
+
+def binmags(mags, mag_min, mag_max, nbins, area_out_arcmin2):
+    nbins = int(nbins)
+    if nbins < 1:
+        raise ValueError("nbins must be >= 1")
+    bins = np.linspace(mag_min, mag_max, nbins + 1)
+    counts_mag_, edges_ = np.histogram(mags, bins=bins)
+    err_counts2_mag_ = np.sqrt(counts_mag_)
+
+    m_centers_ = 0.5 * (edges_[1:] + edges_[:-1])
+    binsize = np.diff(edges_)
+
+    counts_mag_ = counts_mag_ / binsize / area_out_arcmin2
+    err_counts_mag_ = err_counts2_mag_ / binsize / area_out_arcmin2
+    return m_centers_, counts_mag_, err_counts_mag_
+
+def runTestLuminosityFunction(m_centers_, counts_mag_, err_counts_mag_, popt_s, outdir, fshow=False,sim_id=1):
+    M_fit = np.linspace(17, 30, 300)
+    phi_fit = schechter_mag(M_fit, *popt_s)
+
+    fig, ax = plt.subplots(1,1,figsize=(8,5))
+    labels_ = ['Input Data', 'Generated Data']
+    for m_centers, counts_mag, err_counts_mag, labels in zip(m_centers_, counts_mag_, err_counts_mag_, labels_):
+        ax.errorbar(m_centers, counts_mag, yerr=err_counts_mag, fmt='o', label=labels)
+    ax.plot(M_fit, phi_fit, 'r-', label='Schechter fit')
+    ax.invert_xaxis()
+    ax.set_yscale('log')
+    ax.set_xlabel("Magnitude")
+    ax.set_ylabel("Galaxy count per unit mag and area")
+    ax.set_title("Luminosity Function with Schechter Fit")
+    ax.grid(True)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(os.path.join(outdir, f"simulated_model_{sim_id+1:03d}_luminosity_function.png"))
+    if fshow:
+        plt.show()
+    plt.close(fig)
+
+def runTestScalingRelations(model_gal, mag0, v_ref, rcut_ref, alpha, beta, outdir,fshow=False,sim_id=1):
+    fig, ax = plt.subplots(1,2,figsize=(12,5))
+    vdisp = np.array([findInBlock(g, 'v_disp') for g in model_gal])
+    mag = np.array([findInBlock(g, 'mag') for g in model_gal])
+
+    m = np.linspace(16,30,100)
+    vdisp_fit = v_disp_from_mag(m, alpha, mag_0=mag0, v_disp_0=v_ref)
+    rcut_fit = cut_radius_from_mag(m, beta, mag_0=mag0, cut_radius_0=rcut_ref)
+
+
+    ax[0].scatter(mag, vdisp, s=10, color='blue', alpha=0.5)
+    ax[0].plot(m, vdisp_fit, 'r-', label='Fitted v_disp')
+    ax[0].set_xlabel("Magnitude")
+    ax[0].set_ylabel("Velocity Dispersion (km/s)")
+    ax[0].set_title("Velocity Dispersion vs Magnitude")
+    ax[0].legend()
+    ax[0].grid(True)
+
+    cut_radius = np.array([findInBlock(g, 'cut_radius') for g in model_gal])
+
+    ax[1].scatter(mag, cut_radius, s=10, color='red', alpha=0.5)
+    ax[1].plot(m, rcut_fit, 'g-', label='Fitted Cut Radius')
+    ax[1].set_xlabel("Magnitude")
+    ax[1].set_ylabel("Cut Radius (arcsec)")
+    ax[1].set_title("Cut Radius vs Magnitude")
+    ax[1].legend()
+    ax[1].grid(True)
+    fig.tight_layout()
+    if fshow:
+        plt.show()
+    fig.savefig(os.path.join(outdir, f"simulated_model_{sim_id+1:03d}_scaling_relations.png"))
+
+def runTestLenstoolModel(lt, z_lens, cosmologie, outdir, sim_id, fieldsize=100.0, images=None, ax=None, zs_ref=6.0, galaxies=None):
+    """
+    Generate a test plot for the Lenstool model.
+    :param lt: lenstool object containing the model
+    :param z_lens: redshift of the lens
+    :param cosmologie: cosmological parameters block
+    :param outdir: output directory
+    :param sim_id: simulation id (for numbering the output image)
+    :param fieldsize: side-length of the field of view
+    :return: nothing... just display the figure and save it to the output directory
+    """
+    conv, wcs = lt.g_mass(1, 1000, z_lens, zs_ref)
+    a1, a2, wcs = lt.g_dpl(1000, zs_ref)
+
+    kwargs_def = {'zl': z_lens, 'zs': zs_ref}
+    co = FlatLambdaCDM(H0=cosmologie['H0'], Om0=cosmologie['omegaM'])
+    df = deflector(co, angx=a1, angy=a2, **kwargs_def)
+    theta = np.linspace(-fieldsize/2, fieldsize/2, a1.shape[0])
+    df.setGrid(theta=theta)
+    tl = df.tancl()
+    rl = df.radcl()
+    ctl = df.getCaustics(tl)
+    crl = df.getCaustics(rl)
+
+    create_figure = False
+    if ax is None:
+        # create a new figure and axis if not provided
+        create_figure = True
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+
+    np.save("convergence.npy", conv)
+    #ax.imshow(conv, origin='lower', norm=LogNorm(vmin=conv.min(), vmax=conv.max()),
+    #          extent=[-fieldsize/2, fieldsize/2, -fieldsize/2, fieldsize/2], cmap=cmap4)
+
+    ax.imshow(conv, origin='lower', norm=AsinhNorm(vmax=3.0),
+              extent=[-fieldsize/2, fieldsize/2, -fieldsize/2, fieldsize/2], cmap=cmap4)
+    #ax.contour(conv, levels=np.linspace(0.8, 2.3, 10), colors='white', linewidths=0.5,
+    #                 extent=[-fieldsize/2, fieldsize/2, -fieldsize/2, fieldsize/2])
+    for t in tl:
+        x, y = df.getCritPoints(t)
+        ax.plot(x, y, '-', color='yellow')
+
+    #for c in ctl:
+    #    x, y = df.getCausticPoints(c)
+    #    ax.plot(x, y, '-', color='red')
+
+    for t in rl:
+        x, y = df.getCritPoints(t)
+        ax.plot(x, y, '-', color='yellow')
+
+    #for c in crl:
+    #    x, y = df.getCausticPoints(c)
+    #    ax.plot(x, y, '-', color='red')
+
+    """
+    if images is not None:
+        # show image data
+        i = 1
+        for entry in images:
+            ax.plot(entry['RA'],entry['DEC'], 'o', markersize=5, color='orange', alpha=0.5)
+            ax.text(entry['RA']+0.1, entry['DEC']+0.1, str(entry['ID']), fontsize=8, color='orange', ha='center', va='center')
+    """
+
+    # Plot galaxy positions as circles (in FOV-centered coordinates)
+    if galaxies:
+        # The image plane uses centered coordinates, so we need to center galaxy positions
+        # Get FOV center from the .par file path if available, or assume centered at (0,0)
+        gal_x = np.array([findInBlock(g, 'x_centre') for g in galaxies])
+        gal_y = np.array([findInBlock(g, 'y_centre') for g in galaxies])
+
+        # Filter out None values
+        valid_mask = (gal_x != None) & (gal_y != None)
+        gal_x = gal_x[valid_mask].astype(float)
+        gal_y = gal_y[valid_mask].astype(float)
+
+        # Center the coordinates (assume FOV was [0, fieldsize] x [0, fieldsize], so center at fieldsize/2)
+        # The image plane coordinate system is centered, so subtract fieldsize/2 to center galaxies
+        gal_x_centered = gal_x - fieldsize/2
+        gal_y_centered = gal_y - fieldsize/2
+
+        # Filter galaxies within the plot range
+        in_range = (np.abs(gal_x_centered) < fieldsize/2) & (np.abs(gal_y_centered) < fieldsize/2)
+
+        if np.any(in_range):
+            ax.scatter(gal_x_centered[in_range], gal_y_centered[in_range],
+                      s=30, facecolors='none', edgecolors='cyan',
+                      linewidths=0.8, alpha=0.7, label=f'Galaxies (N={np.sum(in_range)})')
+            ax.legend(loc='upper right')
+
+    ax.set_xlim(-fieldsize/2, fieldsize/2)
+    ax.set_ylim(-fieldsize/2, fieldsize/2)
+    ax.set_xlabel("X (arcsec)")
+    ax.set_ylabel("Y (arcsec)")
+    ax.set_title("Generated Model")
+
+    if create_figure:
+        plt.tight_layout()
+        fileout = os.path.join(outdir, f"simulated_model_{sim_id+1:03d}.png")
+        fig.savefig(fileout,dpi=300)
+        plt.show()
+        plt.close(fig)
+
+def get_v_disp(p): return float(findInBlock(p, 'v_disp') or 0)
+
+def write_lenstool_image_catalog(filename, data, ref_ra=0.0, ref_dec=0.0):
+    with open(filename, "w") as f:
+        f.write(f"#REFERENCE 3 {ref_ra} {ref_dec}\n")
+        for row in data:
+            # Each row must have exactly 8 fields: ID RA DEC a b theta z mag
+            f.write(" ".join(str(x) for x in row) + "\n")
+
+def plotMassMapWithImages(lt, z_lens, zs_ref, cosmologie, outdir, sim_id, fieldsize,
+                          multiple_images, img_maglim, galaxies=None):
+    """
+    Generate a plot with convergence map, critical lines, and multiple images overlaid.
+
+    :param lt: lenstool object containing the model
+    :param z_lens: redshift of the lens
+    :param zs_ref: reference source redshift
+    :param cosmologie: cosmological parameters block
+    :param outdir: output directory
+    :param sim_id: simulation id (for numbering the output image)
+    :param fieldsize: side-length of the field of view
+    :param multiple_images: list of dicts with multiple image data (ID, RA, DEC, mag, etc.)
+    :param img_maglim: magnitude limit for displaying images
+    :param galaxies: list of galaxy dicts with x_centre, y_centre positions (optional)
+    :return: nothing... just save the figure
+    """
+    # Generate convergence map and deflection angles
+    conv, wcs = lt.g_mass(1, 1000, z_lens, zs_ref)
+    a1, a2, wcs = lt.g_dpl(1000, zs_ref)
+
+    # Create deflector and compute critical lines
+    kwargs_def = {'zl': z_lens, 'zs': zs_ref}
+    co = FlatLambdaCDM(H0=cosmologie['H0'], Om0=cosmologie['omegaM'])
+    df = deflector(co, angx=a1, angy=a2, **kwargs_def)
+    theta = np.linspace(-fieldsize/2, fieldsize/2, a1.shape[0])
+    df.setGrid(theta=theta)
+    tl = df.tancl()
+    rl = df.radcl()
+
+    # Create figure
+    fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+
+    # Plot convergence map
+    ax.imshow(conv, origin='lower', norm=AsinhNorm(vmax=3.0),
+              extent=[-fieldsize/2, fieldsize/2, -fieldsize/2, fieldsize/2], cmap=cmap4)
+
+    # Plot tangential critical lines
+    for t in tl:
+        x, y = df.getCritPoints(t)
+        ax.plot(x, y, '-', color='yellow', linewidth=1.5, label='Critical lines' if t == tl[0] else '')
+
+    # Plot radial critical lines
+    for t in rl:
+        x, y = df.getCritPoints(t)
+        ax.plot(x, y, '-', color='yellow', linewidth=1.5)
+
+    # Plot multiple images
+    if multiple_images:
+        # Group images by source ID
+        sources = {}
+        for img in multiple_images:
+            if img['mag'] < img_maglim:
+                src_id = img['ID'].split('.')[0]  # Get source ID without multiplicity
+                if src_id not in sources:
+                    sources[src_id] = []
+                sources[src_id].append(img)
+
+        # Plot images grouped by source with different colors
+        colors = plt.cm.tab10(np.linspace(0, 1, min(10, len(sources))))
+        for idx, (src_id, imgs) in enumerate(sources.items()):
+            color = colors[idx % len(colors)]
+            for img in imgs:
+                ax.plot(img['RA'], img['DEC'], 'o', color=color, markersize=8,
+                       markeredgecolor='white', markeredgewidth=1.5, alpha=0.8)
+                ax.text(img['RA']+0.5, img['DEC']+0.5, img['ID'], fontsize=7,
+                       color='white', ha='left', va='bottom',
+                       bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.5))
+
+        # Add legend entry for images
+        ax.plot([], [], 'o', color='gray', markersize=8, markeredgecolor='white',
+               markeredgewidth=1.5, label=f'Multiple images (N={len([i for i in multiple_images if i["mag"] < img_maglim])})')
+
+    # Plot galaxy positions as circles
+    if galaxies:
+        gal_x = [findInBlock(g, 'x_centre') for g in galaxies]
+        gal_y = [findInBlock(g, 'y_centre') for g in galaxies]
+        # Filter out None values and galaxies outside the field
+        valid_gals = [(x, y) for x, y in zip(gal_x, gal_y)
+                      if x is not None and y is not None
+                      and abs(x) < fieldsize/2 and abs(y) < fieldsize/2]
+        if valid_gals:
+            gx, gy = zip(*valid_gals)
+            ax.scatter(gx, gy, s=30, facecolors='none', edgecolors='cyan',
+                      linewidths=0.8, alpha=0.7, label=f'Galaxies (N={len(valid_gals)})')
+
+    ax.set_xlim(-fieldsize/2, fieldsize/2)
+    ax.set_ylim(-fieldsize/2, fieldsize/2)
+    ax.set_xlabel("X (arcsec)", fontsize=12)
+    ax.set_ylabel("Y (arcsec)", fontsize=12)
+    ax.set_title(f"Model {sim_id+1:03d}: Convergence Map", fontsize=14)
+    ax.legend(loc='upper right', fontsize=10)
+    ax.set_aspect('equal')
+    plt.tight_layout()
+    if multiple_images:
+        fileout = os.path.join(outdir, f"simulated_model_{sim_id+1:03d}_with_images.png")
+    else:
+        fileout = os.path.join(outdir, f"simulated_model_{sim_id+1:03d}_no_images.png")
+    fig.savefig(fileout, dpi=300, bbox_inches='tight')
+    print(f"Saved figure with convergence map for model {sim_id+1:03d} : {fileout}")
+    plt.close(fig)
+
+def main():
+    # Check command line arguments
+    if len(sys.argv) != 2:
+        print("Usage: python ltcloner.py <config.yaml>")
+        print("\nExample:")
+        print("  python ltcloner.py ltcloner_config.yaml")
+        sys.exit(1)
+
+    config_file = sys.argv[1]
+
+    # Load configuration from YAML
+    try:
+        args = Config(config_file)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML file: {e}")
+        sys.exit(1)
+    except KeyError as e:
+        print(f"Error: Missing required parameter in config file: {e}")
+        sys.exit(1)
+
+    # Print configuration
+    print(args)
+    print("\n" + "="*70)
+
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    zs_ref = 6.0  # Reference redshift for lensing calculations
+
+    runmode = readLenstoolBlock(args.parfile, 'runmode')
+    grille = readLenstoolBlock(args.parfile, 'grille')
+    potentiel = readLenstoolBlock(args.parfile, 'potentiel')
+    cline = readLenstoolBlock(args.parfile, 'cline')
+    grande = readLenstoolBlock(args.parfile, 'grande')
+    champ = readLenstoolBlock(args.parfile, 'champ')
+    cosmologie = readLenstoolBlock(args.parfile, 'cosmologie')
+
+    # Get original FOV center before overriding champ
+    original_fov = getFoV(args.parfile)
+    original_xcen = 0.5 * (original_fov[1] + original_fov[0])
+    original_ycen = 0.5 * (original_fov[3] + original_fov[2])
+
+    # Calculate original fieldsize (assuming square or taking max dimension)
+    original_fieldsize_x = original_fov[1] - original_fov[0]
+    original_fieldsize_y = original_fov[3] - original_fov[2]
+    original_fieldsize = max(original_fieldsize_x, original_fieldsize_y)
+
+    print(f"Original FOV from input file: xmin={original_fov[0]:.1f}, xmax={original_fov[1]:.1f}, "
+          f"ymin={original_fov[2]:.1f}, ymax={original_fov[3]:.1f}")
+    print(f"Original fieldsize: {original_fieldsize:.1f} arcsec")
+    print(f"Original FOV center: ({original_xcen:.1f}, {original_ycen:.1f})")
+
+    area_out_arcmin2 = (args.fieldsize / 60.0) ** 2  # Convert field size from arcsec to arcmin²
+
+    # override champ parameters with command line arguments
+    # New FOV will be centered at (0, 0)
+    champ['xmax'] = args.fieldsize / 2.0
+    champ['xmin'] = -args.fieldsize / 2.0
+    champ['ymax'] = args.fieldsize / 2.0
+    champ['ymin'] = -args.fieldsize / 2.0
+
+    print(f"New FOV (centered): xmin={champ['xmin']:.1f}, xmax={champ['xmax']:.1f}, "
+          f"ymin={champ['ymin']:.1f}, ymax={champ['ymax']:.1f}")
+
+    # NOTE: For constant NUMBER DENSITY, we need to sample galaxies based on
+    # the ACTUAL placement area (π × rmax²), not the FOV area
+    # rmax will scale with fieldsize, so N_galaxies will also scale, but density stays constant
+
+    # select main potential, galaxies, and gas
+    mainpot = selectPotentielByType(potentiel, ptype='main')
+    gals = selectPotentielByType(potentiel, ptype='gal')
+    gas = selectPotentielByType(potentiel, ptype='gas')
+    z_lens_model = None
+    if len(gals) > 0 and findInBlock(gals[0], 'z_lens') is not None:
+        z_lens_model = float(findInBlock(gals[0], 'z_lens'))
+    elif len(mainpot) > 0 and findInBlock(mainpot[0], 'z_lens') is not None:
+        z_lens_model = float(findInBlock(mainpot[0], 'z_lens'))
+    else:
+        z_lens_model = 0.4
+
+    # CENTER ALL COORDINATES to match the new centered FOV
+    # This fixes the fieldsize inconsistency issue
+    print(f"\nCentering coordinates (subtracting original FOV center)...")
+    for g in mainpot:
+        if 'x_centre' in g and 'y_centre' in g:
+            g['x_centre'] = float(g['x_centre']) - original_xcen
+            g['y_centre'] = float(g['y_centre']) - original_ycen
+
+    for g in gals:
+        if 'x_centre' in g and 'y_centre' in g:
+            g['x_centre'] = float(g['x_centre']) - original_xcen
+            g['y_centre'] = float(g['y_centre']) - original_ycen
+
+    for g in gas:
+        if 'x_centre' in g and 'y_centre' in g:
+            g['x_centre'] = float(g['x_centre']) - original_xcen
+            g['y_centre'] = float(g['y_centre']) - original_ycen
+
+    print(f"✓ All coordinates centered to match new FOV")
+    print(f"  Main halos: {len(mainpot)}")
+    print(f"  Galaxies: {len(gals)}")
+    print(f"  Gas components: {len(gas)}")
+
+    # Step 1: Estimate area from galaxy distribution
+    try:
+        area_arcsec2 = compute_area_from_galaxies(gals, test=args.test)
+    except ValueError:
+        area_arcsec2 = args.fieldsize ** 2
+        print("Using fallback area from fieldsize because convex hull is not available.")
+    area_arcmin2 = area_arcsec2 / 3600.0
+    r_ref = np.sqrt(area_arcsec2 / np.pi)
+    print(f"Estimated area: {area_arcmin2:.2f} arcmin²")
+    print(f"------------------")
+
+    try:
+        mag_lim = compute_Lim_Mag_from_galaxies(gals)
+    except ValueError:
+        mag_lim = args.mmax
+        print(f"No galaxy magnitudes found. Using fallback limiting magnitude: {mag_lim:.2f}")
+    print(f"------------------")
+
+
+    # Step 2: Measure radial distribution
+    maxdist = args.fieldsize / 2.0 * np.sqrt(2.0)
+    have_radial_reference = False
+    if len(gals) < 2:
+        if len(gals) == 0:
+            print("No galaxies found in the potential. Cannot measure radial distribution.")
+        else:
+            print("Only one galaxy found. Using default scaling relation parameters.")
+        n0=1.3e-2
+        rs=150.0
+        print(f"Using default NFW parameters: n0 = {n0:.2e}, rs = {rs:.2f} arcsec")
+        alpha = 0.23
+        beta = 0.64
+        if len(gals) > 0:
+            maxdist = computeMaxDist(gals)
+        print(f"Using default scaling relations: alpha = {alpha:.2f}, beta = {beta:.2f}")
+    else:
+        print(f"Number of galaxies found: {len(gals)}")
+        _, _, _, _, alpha, beta = measureScalingRelations(gals)
+        print (f"Measured scaling relations: alpha = {alpha:.2f}, beta = {beta:.2f}")
+        maxdist = computeMaxDist(gals)
+        r, density, counts, err_density, err_counts = measureRadialDistribution(gals,rmax=maxdist/np.sqrt(2),nbins=args.nbinr)
+        popt, _ = fitNFWtoRadialDistribution(r, density, err_density)
+        n0, rs = popt
+        have_radial_reference = True
+        print(f"Fitted NFW parameters: n0 = {n0:.2e}, rs = {rs:.2f} arcsec")
+
+
+    # Step 3: Fit luminosity function
+    print (f"-------------------")
+    deltamag = 0.7
+    have_lf_reference = False
+    if len(gals) > 1:
+        mag = np.array([float(findInBlock(g, 'mag')) for g in gals if findInBlock(g, 'mag') is not None])
+        m_centers, counts_mag, err_counts_mag = measureLuminosityFunction(potentiel, mag_min=np.min(mag), mag_max=np.max(mag),
+                                                                          nbins=int((np.max(mag)-np.min(mag))/deltamag)+1,
+                                                                          area=area_arcmin2)
+        popt_s, pcov_s = fitSchechterFunction(m_centers, counts_mag, err_counts_mag)
+        phistar, Mstar, alpha_m = popt_s
+        have_lf_reference = True
+        print(f"Fitted Schechter parameters: phistar = {phistar:.2e}, Mstar = {Mstar:.2f}, alpha = {alpha_m:.2f}")
+    else:
+        print("No galaxies with magnitudes found. Cannot fit luminosity function.")
+        phistar, Mstar, alpha_m = 8.3, 18.5, -1.15
+        popt_s = (phistar, Mstar, alpha_m)
+
+
+
+    # generate models
+
+    for i in range(args.nmodels):
+        seed = args.seed + 1000 + i
+        # Sample magnitudes from the fitted luminosity function
+        mags = sampleMagnitudesFromFittedLF(phistar, Mstar, alpha_m, mag_min=args.mmin, mag_max=args.mmax,
+                                            area=area_out_arcmin2, scatter=0.0, seed=seed)
+
+        mags_0 = sampleMagnitudesFromFittedLF(phistar, Mstar, alpha_m, mag_min=args.mmin, mag_max=args.mmax,
+                                              area=area_arcmin2, scatter=0.0, seed=seed)
+        if len(mags) == 0:
+            mags = np.array([Mstar], dtype=float)
+
+        m_centers_, counts_mag_, err_counts_mag_ = binmags(mags, args.mmin, args.mmax, int((args.mmax - args.mmin) / deltamag) + 1, area_out_arcmin2)
+        if have_lf_reference and len(m_centers_) > 0:
+            fshow_lf = bool(args.test)
+            runTestLuminosityFunction([m_centers,m_centers_],
+                                      [counts_mag,counts_mag_], [err_counts_mag, err_counts_mag_],
+                                      popt_s, args.output_dir, fshow=fshow_lf, sim_id=i)
+
+        # Generate new galaxies from sampled mags
+        unmatched_gals = [g for g in gals if findInBlock(g, 'mag') is not None]
+        if len(unmatched_gals) > 0:
+            template_gal = unmatched_gals[0].copy()
+            v_ref = float(findInBlock(template_gal, 'v_disp'))
+            rcut_ref = float(findInBlock(template_gal, 'cut_radius'))
+            mag0 = float(findInBlock(template_gal, 'mag'))
+        else:
+            template_gal = {
+                'id': '1000',
+                'profil': 81,
+                'x_centre': 0.0,
+                'y_centre': 0.0,
+                'ellipticite': 0.2,
+                'angle_pos': 0.0,
+                'z_lens': z_lens_model,
+                'core_radius': 1e-4,
+                'cut_radius': 10.0,
+                'v_disp': 220.0,
+                'mag': Mstar
+            }
+            v_ref = float(template_gal['v_disp'])
+            rcut_ref = float(template_gal['cut_radius'])
+            mag0 = float(template_gal['mag'])
+
+        gal_blocks = []
+        for m in mags:
+            g_new = template_gal.copy()
+            g_new['mag'] = m
+            g_new['v_disp'] = v_disp_from_mag(m, alpha, mag_0=mag0, v_disp_0=v_ref)
+            g_new['cut_radius'] = cut_radius_from_mag(m, beta, mag_0=mag0, cut_radius_0= rcut_ref)
+            gal_blocks.append(g_new)
+
+        gal_blocks[0] = template_gal.copy()  # Ensure the first galaxy is the template
+        n_ref_model = min(len(mags_0), len(gal_blocks))
+
+        # Place galaxies on scaling relations and generate randomized smooth model and gas model
+        model_smooth, model_gal, model_gas = generateLenstoolModel(mainpot, gal_blocks, gas, rs*args.rs_fact,
+                                                                   rmax=args.fieldsize/2.0 * np.sqrt(2.0),
+                                                                   tolerance=args.tolerance, offset=0.0,
+                                                                   scatter=args.scatter, useLogNormal=True,
+                                                                   scatter_sigma=args.scatter_sigma,
+                                                                   scatter_rcut=args.scatter_rcut,
+                                                                   rho_sigma_rcut=args.rho_sigma_rcut,
+                                                                   opening_angle=args.opening_angle,
+                                                                   seed=seed, randomize_all=True,
+                                                                   N_ref=n_ref_model, r_ref=r_ref)
+        # sort galaxies by velocity dispersion
+        model_gal = sorted([p for p in model_gal if findInBlock(p, 'v_disp') is not None],
+                            key=get_v_disp, reverse=True)
+
+        print (f"Generated model {i+1}/{args.nmodels} with {len(model_gal)} galaxies, ")
+        r_over, density_over, counts_over, err_density_over, err_counts_over = measureRadialDistribution(model_gal, rmax=maxdist / np.sqrt(2),
+                                                                                nbins=args.nbinr)
+        mismatch_factor = 1.0#np.sqrt(len(model_gal) / len(unmatched_gals))
+        if have_radial_reference:
+            fshow_rad = bool(args.test)
+            runTestRadialDistribution(r, density, err_density, popt, args.output_dir, fshow=fshow_rad,
+                                      r_overplot=r_over, density_overplot=density_over/mismatch_factor,
+                                      err_density_overplot=err_density_over/mismatch_factor, sim_id=i)
+
+        if 0 < args.bcg <= len(mainpot):
+            # in model_gal associate the BCG galaxies with the main potentials
+            for j in range(args.bcg):
+                if j < len(model_gal):
+                    mainp = mainpot[j]# % len(mainpot)]
+                    model_gal[j]['x_centre'] = findInBlock(mainp, 'x_centre') + np.random.uniform(-0.5, 0.5) * args.bcg_offset
+                    model_gal[j]['y_centre'] = findInBlock(mainp, 'y_centre') + np.random.uniform(-0.5, 0.5) * args.bcg_offset
+                    model_gal[j]['ellipticite'] = findInBlock(mainp, 'ellipticite') + np.random.uniform(-0.5, 0.5) * args.bcg_elloffset
+                    # Clamp ellipticite to [0, 0.99]
+                    model_gal[j]['ellipticite'] = min(max(model_gal[j]['ellipticite'], 0), 0.99)
+                    model_gal[j]['angle_pos'] = findInBlock(mainp, 'angle_pos') + np.random.uniform(-0.5, 0.5) * args.bcg_paoffset
+                else:
+                    break
+
+        #model_smooth = [model_smooth[0]]#, model_smooth[1], model_smooth[2]]
+        #model_smooth[0]['v_disp'] = 950.0
+        #model_gal = [model_gal[kk] for kk in range(400)]
+        #model_gas =[]
+
+        # save file with x_centre, y_centre, mag, v_disp for all cluster galaxies with mag < 24
+        vdisp = np.array([findInBlock(g, 'v_disp') for g in model_gal])
+        mag = np.array([findInBlock(g, 'mag') for g in model_gal])
+        x = np.array([findInBlock(g, 'x_centre') for g in model_gal])
+        y = np.array([findInBlock(g, 'y_centre') for g in model_gal])
+        mask = mag < 22.0 #(vdisp > 80) & (mag < 22)
+        file_clmemb = os.path.join(args.output_dir, f"simulated_model_{i+1:03d}_clmemb.csv")
+        with open(file_clmemb, 'w') as f:
+            f.write("x_centre,y_centre,mag,v_disp\n")
+            for j in range(len(model_gal)):
+                if mask[j]:
+                    f.write(f"{x[j]:.2f},{y[j]:.2f},{mag[j]:.2f},{vdisp[j]:.2f}\n")
+
+        lt = lenstool.Lenstool()
+        lt.set_cosmology(cosmologie['H0'], cosmologie['omegaM'], cosmologie['omegaX'], cosmologie['wX'])
+        lt.set_field([-args.fieldsize / 2, args.fieldsize / 2, -args.fieldsize / 2, args.fieldsize / 2])  # Set the field of view
+
+        if args.nullify_ellipticity:
+            print ("WARNING: Nullifying ellipticity of all galaxies")
+            for g in model_gal:
+                g['ellipticite'] = 0.0
+
+        for g in model_smooth + model_gal + model_gas:
+            lt.add_lens(dpie(g['x_centre'], g['y_centre'], g['ellipticite'], g['angle_pos'],
+                             g['z_lens'], g['v_disp'], rc=g['core_radius'], rcut=g['cut_radius']))
+
+        lt.set_grid(128, 1)
+
+        if len(model_gal) > 0:
+            if args.test:
+                runTestScalingRelations(model_gal, mag0, v_ref, rcut_ref, alpha, beta, args.output_dir, fshow=True, sim_id=i)
+                if not args.lens:
+                    runTestLenstoolModel(lt, z_lens_model, cosmologie, args.output_dir, sim_id=i, fieldsize=args.fieldsize)
+            else:
+                runTestScalingRelations(model_gal, mag0, v_ref, rcut_ref, alpha, beta, args.output_dir, fshow=False, sim_id=i)
+
+        new_potentiel = model_smooth + model_gal + model_gas
+        runmode['source'] = [1,f"simulated_model_{i+1:03d}_sources.csv"]
+        grille['nombre'] = 128
+        grille['nlentille'] = len(new_potentiel)
+        runmode['reference']=[3,0.0,0.0]
+        cline['nplan'] = [1, zs_ref]
+
+        new_par = os.path.join(args.output_dir, f"simulated_model_{i+1:03d}.par")
+        blocks = {
+            'runmode': runmode,
+            'grille': grille,
+            'potentiel': new_potentiel,
+            'cline': cline,
+            'grande': grande,
+            'cosmologie': cosmologie,
+            'champ': champ
+        }
+        writeLenstoolPar(new_par, **blocks)
+        print(f"Model saved: {new_par}")
+
+        # create a deflector object to generate multiple images if requested
+        z_lens = z_lens_model
+        a1, a2, wcs = lt.g_dpl(1000,zs_ref)
+        kwargs_def = {'zl': z_lens, 'zs': zs_ref}
+        co = FlatLambdaCDM(H0=cosmologie['H0'], Om0=cosmologie['omegaM'])
+        df = deflector(co, angx=a1, angy=a2, **kwargs_def)
+        theta = np.linspace(champ['xmin'], champ['xmax'], a1.shape[0])
+        df.setGrid(theta=theta)
+        print (f"Created deflector assuming z_lens = {z_lens:.2f} and zs_ref = {zs_ref:.2f}")
+        print (f"Assumed cosmology: H0 = {cosmologie['H0']}, omegaM = {cosmologie['omegaM']}, omegaX = {cosmologie['omegaX']}, wX = {cosmologie['wX']}")
+        print (f"Field size: {args.fieldsize} arcsec; xmin = {champ['xmin']}, xmax = {champ['xmax']}, ymin = {champ['ymin']}, ymax = {champ['ymax']}")
+
+        # compute cross-sections and Einstein radii
+        if args.compute_cs:
+            x1, x2 = getClMembDelimitingPoints(new_par,dmax=maxdist)
+            # parse the cluster member positions from the par file
+
+
+            if len(x1) == 0 or len(x2) == 0:
+                print(f"Warning: No cluster members found for cross-section computation. Skipping.")
+            else:
+                _cs = []
+                zs_ggsl = np.linspace(1.0, 6.0, 10)
+                for z in zs_ggsl:
+                    # change deflector redshift
+                    df.change_redshift(z)
+                    # compute de-lensed field of view
+                    y1,y2,fov_sp = df.fovSP_from_x1x2(x1,x2)
+
+                    # compute cross-sections and Einstein radius
+                    _cs.append({'z': z,
+                                'ggsl_cs': df.ggslCrossSection(minsize=0.5,dmax=maxdist),
+                                'multima_cs': df.multImaCrossSection(),
+                                'fov_sp': fov_sp,
+                                'thetaE': df.thetaE()})
+
+
+                file_cs = os.path.join(args.output_dir, f"simulated_model_{i+1:03d}_cross_sections.csv")
+                df_ggsl = pd.DataFrame(_cs)
+                df_ggsl.to_csv(file_cs, index=False)
+                if args.test:
+                    # plot the ggsl cross-section as a function of redshift
+                    fig_ggsl, ax_ggsl = plt.subplots()
+                    z_vals = [item['z'] for item in _cs]
+                    cs_vals = [item['ggsl_cs'] for item in _cs]
+                    fov_sp = [item['fov_sp'] for item in _cs]
+                    ax_ggsl.plot(z_vals, np.array(cs_vals)/np.array(fov_sp)*1e6, marker='o')
+                    ax_ggsl.set_xlabel("Source Redshift")
+                    ax_ggsl.set_ylabel("GGSL Cross-Section (arcsec²)")
+                    ax_ggsl.set_title(f"GGSL Cross-Section vs Redshift for Model {i + 1:03d}")
+                    plt.grid()
+                    plt.show()
+                    plt.close(fig_ggsl)
+
+        if args.lens:
+            # generate a source catalog
+            kwargs_src = {
+                'FOV': args.fieldsize,
+                'filtern': 'BPZ/HST_ACS_WFC_F606W.res',
+                'useband': 'f775w',
+                'recal': 'yes',
+                'maglim': args.src_maglim,
+                'udfdir': '/Users/maxmen3/stiva/HUDF/',
+                'homedir': '/Users/maxmen3/CODES/bpz-1.99.3/SED/',
+                'seed': args.seed
+            }
+            cat = srccatalog(**kwargs_src)
+            df_src = cat.get_dataframe()
+            print (f"Number of sources generated: {len(df_src)}")
+
+            # drop sources with z < z_lens
+
+            df_src = df_src[df_src['zgal'] >= z_lens]
+
+            # check if sources are within the caustics of the deflector
+            xs = df_src['x'].values
+            ys = df_src['y'].values
+            xs_pixel, ys_pixel = df.arcsec2pixel(xs, ys)
+
+            print(f"Number of sources in the field: {len(xs_pixel)}")
+            if len(xs) > 0 and len(ys) > 0:
+                print(f"Source coordinates in arcsec: xs = {xs.min()} to {xs.max()}, ys = {ys.min()} to {ys.max()}")
+            else:
+                print("No sources remain after z-filtering; writing empty source/image catalogs.")
+
+            # generate source planes
+            z_planes, dl_arr_equisp = cat.generateSrcPlanesDL(co, z_lens=z_lens, z_source_max=11.0, n_planes=100)
+            z_source = df_src['zgal'].values
+
+            # Vectorized plane index assignment - MUCH faster than Python loop
+            plane_indices = np.zeros(len(z_source), dtype=int)
+            mask_behind = z_source > z_lens
+            if np.any(mask_behind):
+                # Compute distances to all planes at once using broadcasting
+                z_diff = np.abs(z_source[mask_behind, np.newaxis] - z_planes[np.newaxis, :])
+                plane_indices[mask_behind] = np.argmin(z_diff, axis=1)
+
+            #df_src['plane_index'] = plane_indices
+            #df_src['plane_z'] = z_planes[plane_indices]
+            df_src = df_src.copy()
+            df_src.loc[:, 'plane_index'] = plane_indices
+            df_src.loc[:, 'plane_z'] = z_planes[plane_indices]
+
+            # process all sources on a given lens plane
+            # new dataframe with the same columns as df_src but only sources on the current lens plane
+            selected_sources = []
+
+
+            for z in np.unique(df_src['plane_z']):
+                isel = df_src['plane_z'] == z
+                print (f"Processing sources for lens plane z = {z:.2f} with {isel.sum()} sources")
+                df.change_redshift(z)
+                print (f"Deflector redshift changed to {df.zs:.2f}")
+                #_ = df.multImaCrossSection()
+                # Select sources on the current lens plane
+                xs_plane = xs_pixel[isel]
+                ys_plane = ys_pixel[isel]
+                # check sources inside caustics
+                inside_caustics = df.points_in_UU(xs_plane, ys_plane)
+                print (f"Number of inside caustics: {inside_caustics.sum()}")
+                print ('------------------------')
+                # Select only sources inside caustics for this plane
+                df_plane = df_src[isel].copy()
+                df_plane = df_plane[inside_caustics]
+                selected_sources.append(df_plane)
+                df.change_redshift(zs_ref)
+
+            # Concatenate all selected sources into a new DataFrame
+            if len(selected_sources) > 0:
+                df_src = pd.concat(selected_sources, ignore_index=True)
+            else:
+                df_src = df_src.iloc[0:0].copy()
+            print(f"Number of sources after caustics check: {len(df_src)}")
+
+
+            # convert the DataFrame to the table required by Lenstool
+            # Use vectorized operations instead of slow iterrows()
+            tab = Table(names=['n', 'x', 'y', 'a', 'b', 'theta', 'z', 'mag'], dtype=['str', *['float', ] * 7])
+
+            # Pre-allocate data arrays for much faster table construction
+            n_sources = len(df_src)
+            ids = [str(ii+1) for ii in range(n_sources)]
+            xs = df_src['x'].values
+            ys = df_src['y'].values
+            pas = df_src['PA'].values
+            zs = df_src['zgal'].values
+            mags = df_src['mag'].values
+
+            # Bulk add rows (much faster than individual add_row calls)
+            for ii in range(n_sources):
+                tab.add_row([ids[ii], xs[ii], ys[ii], 1.0, 1.0, pas[ii], zs[ii], mags[ii]])
+
+            tab.meta['iref'], tab.meta['ref_ra'], tab.meta['ref_dec'] = 3, 0.0, 0.0
+            lt.get_sources()
+
+            #tab.write(os.path.join(args.output_dir, f"simulated_model_{i + 1:03d}_images.csv"), format='ascii',overwrite=True)
+            write_lenstool_image_catalog(os.path.join(args.output_dir, f"simulated_model_{i + 1:03d}_sources.csv"), tab.as_array())
+
+            #if args.lens:
+            # Run Lenstool to generate images
+
+            """
+            executable = '/Users/maxmen3/miniforge3/envs/lenstool_env/bin/lenstool'  # Path to the Lenstool executable
+            # Run external code (waits by default unless you set `subprocess.Popen`)
+            try:
+                result = subprocess.run([executable, f"simulated_model_{i+1:03d}.par", "-n"], check=True, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, text=True)
+                print("Execution output:")
+                print(result.stdout)
+            except subprocess.CalledProcessError as e:
+                print("Error during execution:")
+                print(e.stderr)
+                raise
+
+            # Check if the output file exists
+            output_file = "image.all"
+            if not os.path.exists(output_file):
+                raise FileNotFoundError(f"{output_file} not found after running {executable}")
+
+            # Read the output file (e.g., image.all)
+            with open(output_file, "r") as f:
+                lines = f.readlines()
+
+            # Example: parse the image catalog (assuming 8-column format after header)
+            image_data = []
+            for line in lines:
+                if line.strip().startswith("#"):
+                    continue  # Skip header
+                fields = line.strip().split()
+                if len(fields) == 8:
+                    # ID, RA, DEC, a, b, theta, z, mag
+                    image_data.append({
+                        "ID": int(fields[0]),
+                        "RA": float(fields[1]),
+                        "DEC": float(fields[2]),
+                        "a": float(fields[3]),
+                        "b": float(fields[4]),
+                        "theta": float(fields[5]),
+                        "z": float(fields[6]),
+                        "mag": float(fields[7])
+                    })
+
+            # Count occurrences of each ID
+            id_counts = Counter(entry["ID"] for entry in image_data)
+
+            # Keep only entries with duplicate IDs
+            filtered_image_data = [entry for entry in image_data if id_counts[entry["ID"]] > 1]
+            # Create a counter for each original ID
+            id_multiplicity = defaultdict(int)
+
+            # change the ID to be ID.i,... with i being the multiplicity of the image of the same source
+            for entry in filtered_image_data:
+                original_id = entry["ID"]
+                id_multiplicity[original_id] += 1
+                entry["ID"] = f"{original_id}.{id_multiplicity[original_id]}"
+
+
+            print(f"Filtered down to {len(filtered_image_data)} multiple-image entries.")
+
+            # save to csv file
+            output_csv = f"simulated_model_{i + 1:03d}_images.csv"
+            with open(output_csv, "w") as f:
+                f.write("ID,RA,DEC,a,b,theta,z,mag\n")
+                for entry in filtered_image_data:
+                    f.write(f"{entry['ID']},{entry['RA']},{entry['DEC']},{entry['a']},{entry['b']},{entry['theta']},{entry['z']},{entry['mag']}\n")
+            """
+
+
+            #runTestLenstoolModel(lt, gals[0]['z_lens'], cosmologie, args.output_dir, sim_id=i,
+            #                     fieldsize=args.fieldsize,images=filtered_image_data,ax=ax)
+            if args.test:
+                fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+                runTestLenstoolModel(lt, z_lens_model, cosmologie, args.output_dir, sim_id=i,
+                                     fieldsize=args.fieldsize, ax=ax)
+
+            multiple_images = []
+
+            # OPTIMIZED: Pre-extract all data from DataFrame to avoid slow iterrows()
+            # and group sources by redshift to minimize expensive change_redshift() calls
+            df_src_reset = df_src.reset_index(drop=True)
+            source_data = {
+                'x': df_src_reset['x'].values,
+                'y': df_src_reset['y'].values,
+                'zgal': df_src_reset['zgal'].values,
+                'mag': df_src_reset['mag'].values
+            }
+            n_sources = len(df_src_reset)
+
+            # Group sources by redshift to minimize change_redshift calls
+            unique_zs = np.unique(source_data['zgal'])
+            print(f"Processing {n_sources} sources at {len(unique_zs)} unique redshifts...")
+
+            for z_current in unique_zs:
+                # Change redshift once per unique redshift (not once per source!)
+                df.change_redshift(z_current)
+
+                # Find all sources at this redshift
+                z_mask = source_data['zgal'] == z_current
+                indices = np.where(z_mask)[0]
+
+                print(f"  Finding images for {len(indices)} sources at z={z_current:.2f}")
+
+                # Process all sources at this redshift
+                for k in indices:
+                    kwargs_src = {
+                        'ys1': source_data['x'][k],
+                        'ys2': source_data['y'][k],
+                        'flux': 1.0,
+                        'zs': z_current
+                    }
+
+                    # Create pointsrc and find images
+                    ps = pointsrc(size=args.fieldsize, Npix=a1.shape[0], gl=df,
+                                use_lenstronomy=False, refine=True, **kwargs_src)
+                    xi, yi, mui = ps.find_images()
+
+                    if len(xi) <= 1:
+                        continue
+
+                    # Compute magnitudes
+                    mags_ = -2.5 * np.log10(np.abs(mui)) + source_data['mag'][k]
+
+                    # Sort images by magnitude
+                    sort_idx = np.argsort(mags_)
+                    xi, yi, mui, mags_ = xi[sort_idx], yi[sort_idx], mui[sort_idx], mags_[sort_idx]
+
+                    # Check if multiple images pass magnitude cut
+                    imag = mags_ < args.img_maglim
+
+                    if np.sum(imag) > 1:
+                        for kk in range(len(xi)):
+                            new_ima = {
+                                "ID": f"{k+1}.{kk+1}",
+                                "RA": xi[kk],
+                                "DEC": yi[kk],
+                                "a": 1.0,
+                                "b": 1.0,
+                                "theta": 0.0,
+                                "z": z_current,
+                                "mag": mags_[kk]
+                            }
+                            multiple_images.append(new_ima)
+            plt.tight_layout()
+
+            plt.show()
+
+
+            # save to csv file
+            print(f'Number of multiple images: {len(multiple_images)}')
+
+            # OPTIMIZED: Write CSV files in bulk instead of line-by-line
+            output_csv = os.path.join(args.output_dir, f"simulated_model_{i + 1:03d}_allimages.csv")
+            if multiple_images:
+                # Build all lines at once
+                csv_lines = ["ID,RA,DEC,a,b,theta,z,mag\n"]
+                csv_lines.extend([
+                    f"{entry['ID']},{entry['RA']},{entry['DEC']},{entry['a']},{entry['b']},{entry['theta']},{entry['z']},{entry['mag']}\n"
+                    for entry in multiple_images
+                ])
+                with open(output_csv, "w") as f:
+                    f.writelines(csv_lines)
+            else:
+                # Write empty file with header
+                with open(output_csv, "w") as f:
+                    f.write("ID,RA,DEC,a,b,theta,z,mag\n")
+
+            # Write filtered images (below mag limit)
+            output_csv = os.path.join(args.output_dir, f"simulated_model_{i + 1:03d}_images.csv")
+            filtered_images = [entry for entry in multiple_images if entry['mag'] < args.img_maglim]
+            nsaved = len(filtered_images)
+
+            if filtered_images:
+                csv_lines = ["ID,RA,DEC,a,b,theta,z,mag\n"]
+                csv_lines.extend([
+                    f"{entry['ID']},{entry['RA']},{entry['DEC']},{entry['a']},{entry['b']},{entry['theta']},{entry['z']},{entry['mag']}\n"
+                    for entry in filtered_images
+                ])
+                with open(output_csv, "w") as f:
+                    f.writelines(csv_lines)
+            else:
+                with open(output_csv, "w") as f:
+                    f.write("ID,RA,DEC,a,b,theta,z,mag\n")
+
+            print(f'Number of multiple images below mag cut: {nsaved}')
+
+            ## Generate figure with multiple images and galaxy positions overlaid on mass map
+            plotMassMapWithImages(lt, z_lens_model, zs_ref, cosmologie,
+                                args.output_dir, i, args.fieldsize,
+                                filtered_images, args.img_maglim, galaxies=model_gal)
+        else:
+
+            ## Generate figure with multiple images overlaid on mass map
+            plotMassMapWithImages(lt, z_lens_model, zs_ref, cosmologie,
+                                args.output_dir, i, args.fieldsize,
+                                [], args.img_maglim, galaxies=model_gal)
+
+        #lt.set_sources(tab,0.0, 0.0)  # Set the source catalog with reference RA/DEC at (0,0)
+        #lt.e_lensing()
+        #tab_images = lt.get_images()
+        #print (f"Number of images generated: {len(tab_images)}")
+        #print (tab_images)
+
+        #tab_images.write(os.path.join(args.output_dir, f"simulated_model_{i+1:03d}_images.ecsv"), format='ecsv', overwrite=True)
+
+
+
+
+if __name__ == "__main__":
+    main()

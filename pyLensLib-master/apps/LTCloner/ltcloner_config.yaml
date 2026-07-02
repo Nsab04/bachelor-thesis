@@ -1,0 +1,50 @@
+# Configuration file for ltcloner.py
+# This file contains all parameters for generating lens models from a Lenstool .par file
+
+# Required parameters
+parfile: "/Users/maxmen3/stiva/pietro_models/M1206pl.par"  # Input Lenstool .par file
+nmodels: 10                    # Number of lens models to generate
+
+# Magnitude limits
+mmin: 17.0                     # Minimum magnitude for luminosity function
+mmax: 24.0                     # Maximum magnitude for luminosity function
+
+# Random seed
+seed: 42                       # Random seed for reproducibility
+
+# Field of view
+fieldsize: 400.0              # Side length of the field of view (arcsec)
+
+# Source and image parameters
+src_maglim: 30.0              # Magnitude limit for source galaxies (intrinsic)
+img_maglim: 30.0              # Magnitude limit for images (lensed sources)
+
+# BCG (Brightest Cluster Galaxy) parameters
+bcg: 1                        # Number of BCG galaxies to associate with main potentials
+bcg_offset: 0.0               # Maximum offset for BCG galaxies from main potential center (arcsec)
+bcg_elloffset: 0.0            # Maximum offset for BCG galaxy ellipticity
+bcg_paoffset: 0.0            # Maximum offset for BCG galaxy position angle (degrees)
+
+# Model geometry
+opening_angle: 45.0          # Force alignment of mainpot potentials (degrees)
+                              # 180.0 = full circle, smaller values create elongated distributions
+
+# Scaling relations
+scatter: 0.05                  # Lognormal scatter for scaling relations
+tolerance: 0.1                # Tolerance for distances between main potentials (fraction)
+
+# Distribution measurement
+nbinr: 7                      # Number of radial bins for distribution measurement
+
+# Flags
+nullify_ellipticity: false    # Set ellipticity of all galaxies to zero
+lens: false                   # Run with generation of multiple images for each model
+test: false                   # Run in test mode without saving models
+compute_cs: true             # Compute cross sections and Einstein radii for each model
+
+# Output
+output_dir: "test_multi"  # Directory to save output models
+
+# Experiments
+rs_fact: 1.0                 # Factor to scale rs of subhalo radial distribution
+

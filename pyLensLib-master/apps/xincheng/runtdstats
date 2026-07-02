@@ -1,0 +1,1 @@
+python td_statistics.py --zl 0.5 --pixel-scale-arcsec 0.6361 --n-rad 100 --n-tan 100 --zsmin 1.0 --zsmax 6.0 --match-max-sep-arcsec 0.5 --hist-bins 20 --discard-mismatched-image-counts

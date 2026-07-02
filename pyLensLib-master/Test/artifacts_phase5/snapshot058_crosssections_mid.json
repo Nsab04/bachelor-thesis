@@ -1,0 +1,90 @@
+{
+  "snapshot": "/Users/maxmen3/projects/pyLensLib/Test/snap_058",
+  "subfind_file": "/Users/maxmen3/projects/pyLensLib/Test/sub_058.0",
+  "parttypes": [
+    0,
+    1,
+    4
+  ],
+  "fov_arcsec": 200.0,
+  "npix_map": 256,
+  "nray": 256,
+  "zhalf_mpc": 10.0,
+  "zs_grid": [
+    1.0,
+    2.0
+  ],
+  "mass_map_meta": {
+    "center_mpc": [
+      500.6941223144531,
+      498.2177429199219,
+      494.91650390625
+    ],
+    "fov_mpc": 1.221836075055304,
+    "bounds_mpc": {
+      "xmin": -0.610918037527652,
+      "xmax": 0.610918037527652,
+      "ymin": -0.610918037527652,
+      "ymax": 0.610918037527652
+    },
+    "per_parttype": [
+      {
+        "parttype": 0,
+        "projected_mass_msun": 86802849333248.0
+      },
+      {
+        "parttype": 1,
+        "projected_mass_msun": 583301924388864.0
+      },
+      {
+        "parttype": 4,
+        "projected_mass_msun": 10551823433728.0
+      }
+    ]
+  },
+  "pyLensLib": [
+    {
+      "zs": 1.0,
+      "source_plane_area": 29380.36544106842,
+      "ggsl_cross_section": 0.0,
+      "multima_cross_section": 4.382296500579353,
+      "ggsl_probability": 0.0,
+      "multima_probability": 0.00014915731764362936,
+      "n_tancl": 3,
+      "n_radcl": 0
+    },
+    {
+      "zs": 2.0,
+      "source_plane_area": 24716.0513482306,
+      "ggsl_cross_section": 0.3756984047135856,
+      "multima_cross_section": 52.32546241838461,
+      "ggsl_probability": 1.5200583597285718e-05,
+      "multima_probability": 0.002117063995423789,
+      "n_tancl": 10,
+      "n_radcl": 1
+    }
+  ],
+  "jlLensLib": [
+    {
+      "zs": 1.0,
+      "source_plane_area": 0.0,
+      "ggsl_cross_section": 0.0,
+      "multima_cross_section": 0.0,
+      "ggsl_probability": NaN,
+      "multima_probability": NaN,
+      "n_tancl": 0,
+      "n_radcl": 0
+    },
+    {
+      "zs": 2.0,
+      "source_plane_area": 0.0,
+      "ggsl_cross_section": 0.0,
+      "multima_cross_section": 0.0,
+      "ggsl_probability": NaN,
+      "multima_probability": NaN,
+      "n_tancl": 0,
+      "n_radcl": 0
+    }
+  ],
+  "jl_geometry_h5": "/Users/maxmen3/projects/pyLensLib/Test/artifacts_phase5/snapshot058_crosssections_mid.jl_geometry.h5"
+}

@@ -1,0 +1,263 @@
+% Journal target: Astronomy & Astrophysics (A&A) via aa.cls.
+% For Astronomy and Computing submission, switch class to elsarticle
+% and adapt front-matter blocks accordingly.
+\documentclass{aa}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xspace}
+
+\newcommand{\pylenslib}{\texttt{pyLensLib}\xspace}
+
+\title{\pylenslib: A Python package for multi-scale gravitational lensing simulations}
+
+\author{
+M. Meneghetti\inst{1}
+\and
+The \pylenslib Collaboration\inst{1}
+}
+
+\institute{
+INAF -- Osservatorio di Astrofisica e Scienza dello Spazio di Bologna, Via Piero Gobetti 93/3, 40129 Bologna, Italy
+}
+
+\date{Received XX XX 20XX / Accepted XX XX 20XX}
+
+\abstract
+% context heading (optional)
+{Strong and weak gravitational lensing analyses increasingly require flexible software that can combine analytical lens models, map-based mass reconstructions, source population synthesis, and realistic instrument effects in a single reproducible pipeline.}
+% aims heading (mandatory)
+{We present \pylenslib, an open-source Python package designed to simulate gravitational lensing across multiple physical scales, from stellar microlensing to galaxy and cluster strong-lensing regimes, with explicit support for galaxy-galaxy strong lensing (GGSL) applications.}
+% methods heading (mandatory)
+{The package is organized around two abstract foundations: lens models inherit from \texttt{genlen}, and source models inherit from \texttt{gensrc}. This design provides a shared interface for computing lensing fields, critical lines, caustics, and ray-traced images. \pylenslib combines analytical models (SIE, PIEMD, NFW-like and multipole/shear perturbations), map-based deflectors, multi-plane propagation, source/light models (Sersic, point sources, shapelets, spiral structures), and observation modules for PSF convolution and noise realization.}
+% results heading (mandatory)
+{We describe the package architecture, principal algorithms, module-level functionality, and practical simulation workflows. We also document optional interfaces to external simulation and modeling ecosystems (e.g., Gadget/Subfind readers, Lenstool interoperability, optional \texttt{lenstronomy} image-finding backend), together with performance-oriented components such as vectorized solvers and Numba-accelerated source rendering.}
+% conclusions heading (optional), leave it empty if necessary
+{By unifying physically motivated lens modeling, synthetic imaging, and analysis utilities, \pylenslib provides a practical environment for reproducible lensing experiments and method development in current and upcoming survey contexts.}
+
+\keywords{
+gravitational lensing: strong --
+gravitational lensing: micro --
+methods: numerical --
+methods: data analysis --
+galaxies: clusters: general
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Gravitational lensing has become a standard tool for studying mass distributions across a large dynamical range, from stellar compact objects to galaxy clusters. Modern lensing analyses frequently combine distinct tasks: (i) parametric lens modeling, (ii) map-based ray tracing from numerical simulations, (iii) realistic source population construction, and (iv) synthetic observation generation for direct data-model comparison. Maintaining these tasks inside a single software environment is valuable for reproducibility, consistency, and rapid methodological iteration.
+
+\pylenslib is a scientific Python package developed to address this need. The codebase targets lensing at multiple scales, including microlensing, galaxy-scale lensing, and cluster-scale strong lensing with explicit support for GGSL-oriented workflows. The package is available under the MIT license and is structured to support both interactive use and scripted batch production.
+
+This paper documents the current functionality of \pylenslib in a software paper format suitable for journals such as \emph{Astronomy and Computing} or \emph{Astronomy \& Astrophysics}. The emphasis is on architecture, implemented capabilities, and end-to-end simulation logic.
+
+\section{Scientific and software scope}
+\subsection{Design goals}
+The package design follows four operational goals:
+\begin{enumerate}
+\item \textbf{Multi-scale lensing coverage}: support for microlensing, galaxy lenses, and cluster lenses in one library.
+\item \textbf{Composable physical models}: analytical and map-based deflectors can be combined and reused.
+\item \textbf{Realistic mock imaging}: synthetic observations include PSF effects, background, and shot-noise realizations.
+\item \textbf{Workflow interoperability}: interfaces to external data/model ecosystems are available when needed.
+\end{enumerate}
+
+\subsection{Problem classes addressed}
+The implemented functionality targets:
+\begin{itemize}
+\item strong-lensing image formation and critical-curve/caustic analysis,
+\item source-plane and image-plane morphology studies,
+\item lens-substructure perturbation experiments,
+\item map-based lensing from simulation snapshots,
+\item generation of mock data products for pipeline testing.
+\end{itemize}
+
+\section{Core architecture}
+\subsection{Base class hierarchy}
+\pylenslib is built around two abstract operational layers:
+\begin{itemize}
+\item \texttt{genlen} (\texttt{pyLensLib/genlen.py}) for lens-side quantities,
+\item \texttt{gensrc} (\texttt{pyLensLib/gensrc.py}) for source-side ray tracing.
+\end{itemize}
+
+Lens classes inheriting from \texttt{genlen} expose a shared interface for convergence, shear, deflection angles, and (optionally) potential-related quantities. Source classes inheriting from \texttt{gensrc} share ray-tracing logic against any compatible deflector. The classes \texttt{CriticalLine} and \texttt{Caustic} (\texttt{pyLensLib/critcau.py}) provide geometric containers for topological lensing structures.
+
+\subsection{Lensing equations and implemented fields}
+The package is based on the standard thin-lens mapping:
+\begin{equation}
+\boldsymbol{\beta} = \boldsymbol{\theta} - \boldsymbol{\alpha}(\boldsymbol{\theta}),
+\end{equation}
+with Jacobian
+\begin{equation}
+\mathbf{A} =
+\begin{pmatrix}
+1-\kappa-\gamma_1 & -\gamma_2 \\
+-\gamma_2 & 1-\kappa+\gamma_1
+\end{pmatrix},
+\end{equation}
+and critical lines defined by $\det \mathbf{A}=0$. In practice, \texttt{genlen} computes $\kappa$, $(\gamma_1,\gamma_2)$, and $\boldsymbol{\alpha}$ on user-defined grids, then extracts tangential and radial critical contours and maps them to caustics.
+
+\subsection{Documentation-level module grouping}
+To keep the API interpretable, the documentation is organized in eight groups (Table~\ref{tab:groups}).
+
+\begin{table*}
+\caption{Main \pylenslib documentation groups and representative modules.}
+\label{tab:groups}
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Group} & \textbf{Representative modules} \\
+\midrule
+Core foundations & \texttt{genlen}, \texttt{gensrc}, \texttt{critcau} \\
+Lens mass models & \texttt{deflector}, \texttt{piemd}, \texttt{sie}, \texttt{nfwell}, \texttt{extshear}, \texttt{multipoles}, \texttt{perturber}, \texttt{compositeModel}, \texttt{microlensing} \\
+Source and light models & \texttt{sersic}, \texttt{sersic\_numba}, \texttt{sersic2}, \texttt{pointsrc}, \texttt{shapelets}, \texttt{shapelets\_polar}, \texttt{spiral}, \texttt{sourceplane}, \texttt{poststamp} \\
+Ray tracing and multi-plane & \texttt{raytracer}, \texttt{raymesh}, \texttt{multiplane} \\
+Simulation utilities & \texttt{cluster}, \texttt{gadget}, \texttt{perlin}, \texttt{perlin\_parall}, \texttt{samplers}, \texttt{maputils}, \texttt{subfind} \\
+Catalogs/populations/external data & \texttt{srccatalog}, \texttt{photocatalogs}, \texttt{sedmodel}, \texttt{subhaloPop}, \texttt{lenstool} \\
+Observation and instrument effects & \texttt{observation} \\
+Interactive tools & \texttt{lens\_interact}, \texttt{lens\_interact\_qt} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Lens mass modeling functionality}
+\subsection{Analytical deflectors}
+The package includes a set of parametric lens models:
+\begin{itemize}
+\item \texttt{sie}: singular isothermal ellipsoid,
+\item \texttt{piemd}: pseudo-isothermal elliptical mass distribution,
+\item \texttt{nfwell}: pseudo-elliptical NFW-like halo implementation,
+\item \texttt{extshear}, \texttt{multipoles}, and \texttt{perturber} for perturbative components.
+\end{itemize}
+These models provide coherent access to convergence, shear, deflection angles, and, where applicable, potential-based derivatives.
+
+\subsection{Map-based deflectors}
+The \texttt{deflector} class ingests precomputed deflection maps (e.g., FITS products), enabling direct use of external mass reconstructions or numerical ray-tracing outputs. The resulting object remains compatible with the same source-model APIs used for analytical lenses.
+
+\subsection{Composite lenses and perturbative experiments}
+\texttt{compositeModel} supports additive composition of multiple lens components, allowing direct construction of ``smooth + substructure'' or ``cluster + galaxy members'' models in a common frame. This is central for GGSL and lens-perturbation studies.
+
+\subsection{Microlensing}
+Microlensing functionality is available in \texttt{microlensing}, with utilities for point-lens and binary-lens configurations and associated light-curve generation.
+
+\section{Source and light-model functionality}
+\subsection{Sersic-based sources}
+Extended source modeling is provided by:
+\begin{itemize}
+\item \texttt{sersic}: general-purpose Sersic source renderer,
+\item \texttt{sersic\_numba}: Numba-accelerated implementation for high-throughput runs,
+\item \texttt{sersic2}: alternative implementation path.
+\end{itemize}
+Core parameters include Sersic index, effective radius, axis ratio, orientation, redshift, and total flux normalization.
+
+\subsection{Point and basis-function sources}
+\texttt{pointsrc} provides point-source image-finding utilities and magnification-aware image construction. Basis-function and structured-light alternatives are available via \texttt{shapelets}, \texttt{shapelets\_polar}, and \texttt{spiral}. \texttt{sourceplane} and \texttt{poststamp} support population-level and postage-stamp workflows.
+
+\section{Ray tracing and multi-plane propagation}
+\subsection{Single-plane propagation}
+For standard thin-lens experiments, source objects call \texttt{gensrc.ray\_trace()} against any compatible lens object, yielding lensed image-plane brightness fields and contour products.
+
+\subsection{Grid-based tracing from mass maps}
+\texttt{raytracer} provides map-based tracing utilities from projected mass distributions. \texttt{raymesh} complements this with adaptive mesh sampling utilities for computationally targeted ray placement.
+
+\subsection{Multi-plane lensing}
+\texttt{multiplane} implements sequential propagation through ordered foreground planes up to a source plane at $z_s$, enabling line-of-sight lensing experiments beyond the single-plane approximation.
+
+\section{Observation and instrument modeling}
+\texttt{observation} encapsulates forward modeling of observational effects:
+\begin{itemize}
+\item magnitude-counts conversion,
+\item background level handling,
+\item PSF convolution methods,
+\item Poisson and Gaussian noise realizations.
+\end{itemize}
+This allows direct generation of synthetic imaging products from model images for pipeline tests and method benchmarking.
+
+\section{Simulation utilities and data interfaces}
+\subsection{Simulation-side infrastructure}
+\texttt{cluster}, \texttt{gadget}, and \texttt{subfind} provide utilities to ingest and manipulate simulation-derived particle/halo data. \texttt{maputils} offers analysis tools for map-level operations (profiles, contour geometry, image moments). \texttt{samplers} and Perlin modules support structured synthetic sampling and texture/noise generation in forward simulations.
+
+\subsection{Catalog and SED-level tools}
+\texttt{srccatalog}, \texttt{photocatalogs}, and \texttt{sedmodel} support source population and spectral-energy-distribution workflows. \texttt{subhaloPop} provides subhalo-population utilities for controlled perturbation studies.
+
+\subsection{Interoperability}
+\texttt{lenstool} utilities support interoperability with Lenstool-style parameter and map products. Optional dependencies are used only where required (e.g., Gadget/Subfind readers, Qt tools, optional \texttt{lenstronomy} point-image backend), allowing lighter installations for core use.
+
+\section{Validation workflows and example use cases}
+The repository includes extensive scripted examples under \texttt{Test/}, covering model sanity checks, ray tracing, deflector handling, observation simulation, and source catalog generation. A representative functionality test is the giant-arc workflow:
+\begin{enumerate}
+\item build a main deflector at fixed $(z_l, z_s)$,
+\item generate aligned extended source emission,
+\item produce lensed image and synthetic observation,
+\item inject subhalos at selected masses and locations,
+\item compare perturbed and unperturbed residual maps.
+\end{enumerate}
+Such workflows are intended for method development and sensitivity studies in substructure lensing analyses.
+
+\section{Performance considerations}
+\pylenslib relies on vectorized NumPy/SciPy operations for most field computations and interpolation tasks. Numba acceleration is available for selected hot paths (notably Sersic source rendering). Additional acceleration opportunities exist for large-map campaigns, including cache-aware PSF handling, reduced reallocation patterns in map/particle workflows, and broader JIT coverage of iterative kernels.
+
+\section{Limitations and development priorities}
+Current functionality is broad but heterogeneous across modules because the package supports multiple scientific use cases and legacy workflows. Practical priorities for continued development include:
+\begin{itemize}
+\item expanded automated test coverage with strict CI gating,
+\item stronger typing and parameter validation across public APIs,
+\item further harmonization of naming conventions across legacy/newer modules,
+\item optional GPU-oriented pathways for large simulation campaigns.
+\end{itemize}
+
+\section{Conclusions}
+\pylenslib provides an integrated environment for gravitational lensing simulations across microlensing, galaxy-scale, and cluster-scale regimes. Its main strength is a consistent architecture that links physically motivated lens/source models to realistic synthetic observations and analysis utilities. This structure makes the package suitable for both exploratory lensing studies and reproducible forward-modeling pipelines aligned with modern survey needs.
+
+\begin{acknowledgements}
+The authors acknowledge the open-source scientific Python ecosystem, including NumPy, SciPy, Astropy, Matplotlib, and related community projects that underpin \pylenslib.
+\end{acknowledgements}
+
+\section*{Code availability}
+\pylenslib is distributed under the MIT License in the project repository:
+\url{https://github.com/meneghetti/pyLensLib}
+
+\begin{thebibliography}{}
+\bibitem[Astropy Collaboration et al.(2013)]{Astropy2013}
+Astropy Collaboration, Robitaille, T. P., Tollerud, E. J., et al. 2013, A\&A, 558, A33
+
+\bibitem[Astropy Collaboration et al.(2018)]{Astropy2018}
+Astropy Collaboration, Price-Whelan, A. M., Sipocz, B. M., et al. 2018, AJ, 156, 123
+
+\bibitem[Bartelmann \& Schneider(2001)]{Bartelmann2001}
+Bartelmann, M., \& Schneider, P. 2001, Phys. Rep., 340, 291
+
+\bibitem[Einstein(1936)]{Einstein1936}
+Einstein, A. 1936, Science, 84, 506
+
+\bibitem[Foreman-Mackey et al.(2013)]{ForemanMackey2013}
+Foreman-Mackey, D., Hogg, D. W., Lang, D., \& Goodman, J. 2013, PASP, 125, 306
+
+\bibitem[Harris et al.(2020)]{NumPy2020}
+Harris, C. R., Millman, K. J., van der Walt, S. J., et al. 2020, Nature, 585, 357
+
+\bibitem[Lam et al.(2015)]{Numba2015}
+Lam, S. K., Pitrou, A., \& Seibert, S. 2015, in Proc. Second Workshop on the LLVM Compiler Infrastructure in HPC, 1
+
+\bibitem[Navarro et al.(1996)]{NFW1996}
+Navarro, J. F., Frenk, C. S., \& White, S. D. M. 1996, ApJ, 462, 563
+
+\bibitem[Navarro et al.(1997)]{NFW1997}
+Navarro, J. F., Frenk, C. S., \& White, S. D. M. 1997, ApJ, 490, 493
+
+\bibitem[Meneghetti et al.(2021)]{Meneghetti2021}
+Meneghetti, M., et al. 2021, Science, 369, 1347
+
+\bibitem[Sersic(1968)]{Sersic1968}
+Sersic, J. L. 1968, Atlas de Galaxias Australes (Cordoba: Obs. Astron., Univ. Nac. Cordoba)
+
+\bibitem[Virtanen et al.(2020)]{SciPy2020}
+Virtanen, P., Gommers, R., Oliphant, T. E., et al. 2020, Nat. Methods, 17, 261
+\end{thebibliography}
+
+\end{document}

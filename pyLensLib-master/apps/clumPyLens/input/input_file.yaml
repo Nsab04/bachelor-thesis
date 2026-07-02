@@ -1,0 +1,263 @@
+paths:
+  description: Files and directories used by the simulation. Relative paths are resolved from this YAML file.
+  PATH_TO_def_angle:
+    value: ./def_ang
+    description: Lenstool deflection maps for the selected cluster.
+  PATH_TO_input_file:
+    value: ./input_file.yaml
+    description: Path to this YAML file, kept for compatibility with the legacy workflow.
+  PATH_TO_sed:
+    value: ./SED_Ygg
+    description: Yggdrasil SED tables used to convert stellar masses into fluxes.
+  PATH_TO_psf:
+    value: ./PSF
+    description: PSF library organized by telescope and filter.
+  PATH_TO_clumps:
+    value: ../output/cl_catalogue
+    description: Directory where clump parameter tables are written.
+  PATH_TO_fits:
+    value: ../output/fits
+    description: Directory where FITS images are written.
+  PATH_TO_host:
+    value: ../output/host_catalogue
+    description: Directory where host-galaxy tables are written.
+  PATH_TO_images:
+    value: ../output/images
+    description: Directory where diagnostic plots are written.
+  PATH_TO_needed:
+    value: .
+    description: Ancillary input directory used by the instrument branch.
+
+runtime:
+  description: Interactive switches that control optional structure generation.
+  ask_Perlin:
+    value: true
+    description: Prompt for Perlin clump structure when the run starts.
+  ask_spiral:
+    value: true
+    description: Prompt for spiral structure when the run starts.
+  Na:
+    value: 2
+    description: Number of spiral arms to use when spiral structure is enabled.
+
+perlin:
+  description: Perlin noise settings for the optional disk texture.
+  perlin_scale:
+    value: 10
+    description: Base spatial scale of the Perlin field in pixels.
+  perlin_octaves:
+    value: 3
+    description: Number of octaves blended into the noise field.
+  perlin_persistence:
+    value: 0.5
+    description: Amplitude falloff between successive octaves.
+  perlin_lacunarity:
+    value: 2.0
+    description: Frequency multiplier between successive octaves.
+  perlin_seed:
+    value: 42
+    description: Random seed for the Perlin field. Keep it fixed for reproducible texture patterns.
+
+scene:
+  description: Geometry, lensing setup, and image framing for the simulated galaxy.
+  pix_scale:
+    value: 0.0025
+    description: High-resolution pixel scale in arcsec per pixel.
+  pix_scale_unl:
+    value: 0.00025
+    description: Pixel scale for the unlensed reference image in arcsec per pixel.
+  cluster:
+    value: M0416
+    description: Cluster name used to select the matching deflection maps.
+  zl:
+    value: 0.396
+    description: Lens redshift of the cluster.
+  coords:
+    value: "64.038142 -24.067472"
+    description: Lens-centre sky coordinates in the format expected by SkyCoord.
+  blue_:
+    value: 20000
+    description: Wavelength used for the blue RGB channel, in Angstrom.
+  green_:
+    value: 30000
+    description: Wavelength used for the green RGB channel, in Angstrom.
+  red_:
+    value: 50000
+    description: Wavelength used for the red RGB channel, in Angstrom.
+  mass_total:
+    value: 100000000.0
+    description: Total stellar mass budget for the galaxy.
+  z_s:
+    value: 6.145
+    description: Source redshift of the simulated galaxy.
+  sizex:
+    value: [-42, -29]
+    description: Lens-plane x bounds for the rendered field in arcsec.
+  sizey:
+    value: [12, 25]
+    description: Lens-plane y bounds for the rendered field in arcsec.
+  size_unl:
+    value: 5
+    description: Side length of the unlensed cutout in arcsec.
+  gal_x:
+    value: -13.716581
+    description: Source-plane x coordinate of the galaxy centre in arcsec.
+  gal_y:
+    value: 3.6176634
+    description: Source-plane y coordinate of the galaxy centre in arcsec.
+
+bulge:
+  description: Stellar population and structural parameters for the bulge component.
+  Mass_bul:
+    value: 10000000.0
+    description: Bulge stellar mass in solar masses.
+  Mass_bul_Y:
+    value: 795000.0
+    description: Bulge Y-band calibration mass used for magnitude scaling.
+  Re_bul:
+    value: 0.1
+    description: Bulge effective radius in arcsec.
+  n_bul:
+    value: 4.0
+    description: Bulge Sersic index.
+  q_bul:
+    value: 1.0
+    description: Bulge axis ratio.
+  pa_bul:
+    value: 0.39269908169872414
+    description: Bulge position angle in radians.
+  Mag_Y_1Gy_J_SW:
+    value: [43.289, 39.182, 38.449, 40.211]
+    description: Reference Y-band magnitudes for a 1 Gyr bulge in JWST SW bands.
+  Mag_Y_1Gy_J_LW:
+    value: [36.869, 36.139, 35.942, 36.003]
+    description: Reference Y-band magnitudes for a 1 Gyr bulge in JWST LW bands.
+  Mag_Y_1Gy_H_ACS:
+    value: [57.706, 58.27, 46.122]
+    description: Reference Y-band magnitudes for a 1 Gyr bulge in HST ACS bands.
+  Mag_Y_1Gy_H_WFC3:
+    value: [40.928, 39.73, 39.134]
+    description: Reference Y-band magnitudes for a 1 Gyr bulge in HST WFC3 bands.
+
+disk:
+  description: Stellar population, structure, and projected inclination for the disk component.
+  Mass_disk:
+    value: 90000000.0
+    description: Disk stellar mass in solar masses.
+  Mass_disk_Y:
+    value: 804000.0
+    description: Disk Y-band calibration mass used for magnitude scaling.
+  Re_disk:
+    value: 0.18
+    description: Disk effective radius in arcsec.
+  n_disk:
+    value: 1.0
+    description: Disk Sersic index.
+  q_disk:
+    value: 1.0
+    description: Disk axis ratio.
+  pa_disk:
+    value: 0.39269908169872414
+    description: Disk position angle in radians.
+  disk_inclination_deg:
+    value: 0
+    description: Projected disk inclination in degrees (0 = face-on, 90 = edge-on). Clump positions inherit this geometry when new clumps are generated.
+  Mag_Y_05Gy_J_SW:
+    value: [39.534, 37.793, 37.407, 38.159]
+    description: Reference Y-band magnitudes for a 0.5 Gyr disk in JWST SW bands.
+  Mag_Y_05Gy_J_LW:
+    value: [36.135, 35.529, 35.342, 35.41]
+    description: Reference Y-band magnitudes for a 0.5 Gyr disk in JWST LW bands.
+  Mag_Y_05Gy_H_ACS:
+    value: [54.495, 54.768, 41.486]
+    description: Reference Y-band magnitudes for a 0.5 Gyr disk in HST ACS bands.
+  Mag_Y_05Gy_H_WFC3:
+    value: [38.364, 38.015, 37.774]
+    description: Reference Y-band magnitudes for a 0.5 Gyr disk in HST WFC3 bands.
+
+clumps:
+  description: Clump mass and age distribution controls.
+  mass_min:
+    value: 10000.0
+    description: Minimum clump mass in solar masses.
+  mass_max:
+    value: 10000000.0
+    description: Maximum clump mass in solar masses.
+  trunc_mass:
+    value: 5000000.0
+    description: Truncation mass used by the clump mass distribution.
+  alpha:
+    value: 2.0
+    description: Power-law slope for the clump mass distribution.
+  gamma:
+    value: 1.0
+    description: Shape parameter for the age distribution.
+  delta:
+    value: 1.0
+    description: Additional age-distribution shape parameter.
+  alpha_t:
+    value: 0.5
+    description: Time-dependence slope used in the age distribution.
+  t_min:
+    value: 1000000.0
+    description: Minimum clump age in years.
+  t_max:
+    value: 500000000.0
+    description: Maximum clump age in years.
+  fsub:
+    value: 0.8
+    description: Fraction of the disk mass allocated to clumps.
+
+instrument:
+  description: Exposure times, sky backgrounds, zero points, and pixel scales for each instrument/filter.
+  Texp_H_ACS:
+    value: [525.0, 525.0, 534.0]
+    description: Exposure times for the HST ACS filters in seconds.
+  Flux_sky_H_ACS:
+    value: [0.0159581, 0.0818812, 0.0641652]
+    description: Sky background fluxes for the HST ACS filters.
+  Texp_H_WFC3:
+    value: [502.93, 502.93, 502.93]
+    description: Exposure times for the HST WFC3 filters in seconds.
+  Flux_sky_H_WFC3:
+    value: [0.301036, 0.287046, 0.301267]
+    description: Sky background fluxes for the HST WFC3 filters.
+  Texp_J_SW:
+    value: [3779.34, 2920.4, 2920.4, 3349.872]
+    description: Exposure times for the JWST SW filters in seconds.
+  Texp_J_LW:
+    value: [2920.4, 2920.4, 3779.34, 3349.872]
+    description: Exposure times for the JWST LW filters in seconds.
+  Flux_sky_J_SW:
+    value: [0.20129, 0.20776, 0.160606, 0.207835]
+    description: Sky background fluxes for the JWST SW filters.
+  Flux_sky_J_LW:
+    value: [0.0948052, 0.0935602, 0.2402224, 0.173829]
+    description: Sky background fluxes for the JWST LW filters.
+  ZP_J_SW:
+    value: [28.02, 28.02, 28.02, 28.02]
+    description: Photometric zero points for the JWST SW filters.
+  ZP_J_LW:
+    value: [26.49, 26.49, 26.49, 26.49]
+    description: Photometric zero points for the JWST LW filters.
+  ZP_H_ACS:
+    value: [25.646, 26.484, 25.932]
+    description: Photometric zero points for the HST ACS filters.
+  ZP_H_WFC3:
+    value: [26.2687, 25.9463, 26.2303]
+    description: Photometric zero points for the HST WFC3 filters.
+  pix_scl_instr:
+    value: [0.05, 0.13, 0.031, 0.063]
+    description: Instrument pixel scale for each filter in arcsec per pixel.
+  pix_scl_PSF_J_SW:
+    value: [0.007775, 0.007775, 0.007775, 0.007775]
+    description: PSF pixel scale for the JWST SW filters in arcsec per pixel.
+  pix_scl_PSF_J_LW:
+    value: [0.04, 0.04, 0.04, 0.04]
+    description: PSF pixel scale for the JWST LW filters in arcsec per pixel.
+  pix_scl_PSF_H_ACS:
+    value: [0.0495, 0.0495, 0.0495]
+    description: PSF pixel scale for the HST ACS filters in arcsec per pixel.
+  pix_scl_PSF_H_WFC3:
+    value: [0.13, 0.13, 0.13]
+    description: PSF pixel scale for the HST WFC3 filters in arcsec per pixel.

@@ -1,0 +1,138 @@
+{
+  "runtime_sec": {
+    "massMapSPH": 1.412978624983225,
+    "massMapSPH_tmp": 5.531630375015084,
+    "speedup_tmp_vs_old": 0.25543619677939383
+  },
+  "mass_conservation": {
+    "sum_old": 250795065827129.5,
+    "sum_tmp": 250795052140640.5,
+    "relative_delta": -5.457240139418835e-08
+  },
+  "map_residuals": {
+    "l1_relative": 0.03200789788221153,
+    "rms_absolute": 16636546.35164456,
+    "pearson_r": 0.9992550854037388
+  },
+  "lensing_old": {
+    "n_tancl": 5,
+    "n_radcl": 2,
+    "thetaE": 10.824258097462085,
+    "thetaEv": [
+      10.824258097462085,
+      1.1638508401847079,
+      0.490946992442487,
+      0.38227770252508947,
+      0.2746796336973451
+    ],
+    "multImaCrossSection": 24.663632524370243,
+    "ggslCrossSection": 0.09912784776089086,
+    "imageMultiplicityCrossSections": [
+      22.038235400284186,
+      2.625397124086061,
+      0.0
+    ]
+  },
+  "lensing_tmp": {
+    "n_tancl": 2,
+    "n_radcl": 2,
+    "thetaE": 10.67122342411273,
+    "thetaEv": [
+      10.67122342411273,
+      0.9095368043625828
+    ],
+    "multImaCrossSection": 23.821742388471773,
+    "ggslCrossSection": 0.031240832435105084,
+    "imageMultiplicityCrossSections": [
+      21.816691994608167,
+      2.00505039386361,
+      0.0
+    ]
+  },
+  "point_source_multiplicity": {
+    "nsources": 40,
+    "n_multi_old": 40,
+    "n_multi_tmp": 39,
+    "mean_nimg_old": 3.15,
+    "mean_nimg_tmp": 3.0,
+    "mean_abs_delta_nimg": 0.15
+  },
+  "data_mode": "snapshot",
+  "config": {
+    "mode": "snapshot",
+    "snapshot": "/Users/maxmen3/Downloads/snap_058",
+    "parttypes": "1",
+    "hdf5": false,
+    "fsample": 0.0,
+    "subfind_file": "/Users/maxmen3/Downloads/sub_058.0",
+    "subfind_index": 0,
+    "nparticles": 250000,
+    "npix_model": 850,
+    "npix_map": 1024,
+    "nray": 1024,
+    "fov_arcsec": 220.0,
+    "fov_ray_arcsec": 180.0,
+    "z_sigma_mpc": 0.02,
+    "zmax_mpc": 0.25,
+    "nb": 40,
+    "min_hsml": 1e-06,
+    "max_hsml": 0.05,
+    "zl": 0.4,
+    "zs": 2.5,
+    "seed": 17,
+    "nsrc": 40,
+    "prefix": "/Users/maxmen3/projects/pyLensLib/Test/sph_cmp_snap",
+    "no_numba": false,
+    "pX": 0.0,
+    "pY": 0.0
+  },
+  "snapshot_info": {
+    "snapshot": "/Users/maxmen3/Downloads/snap_058",
+    "parttypes": [
+      1
+    ],
+    "zl_from_snapshot": 0.5068677701839768,
+    "center_used": [
+      500.6941223144531,
+      498.2177429199219,
+      494.91650390625
+    ],
+    "subfind_file": "/Users/maxmen3/Downloads/sub_058.0",
+    "subfind_index": 0,
+    "hdf5": false,
+    "fsample": 0.0,
+    "alignIT": true,
+    "IT": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ]
+    ],
+    "parttype_timings_and_masses": [
+      {
+        "parttype": 1,
+        "time_old_sec": 1.412978624983225,
+        "time_tmp_sec": 5.531630375015084,
+        "mass_old": 250795102568448.0,
+        "mass_tmp": 250795052140640.5
+      }
+    ],
+    "bounds_mpc": {
+      "xmin": -0.6720098412804172,
+      "xmax": 0.6720098412804172,
+      "ymin": -0.6720098412804172,
+      "ymax": 0.6720098412804172
+    }
+  }
+}

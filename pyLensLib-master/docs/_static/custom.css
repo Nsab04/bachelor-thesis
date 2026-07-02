@@ -1,0 +1,49 @@
+/* pyLensLib docs polish on top of Furo */
+
+:root {
+  --color-brand-primary: #0b5cab;
+  --color-brand-content: #0b5cab;
+}
+
+.sidebar-brand-text {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.toctree-wrapper p.caption {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-foreground-muted);
+}
+
+.content h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.content h2 {
+  margin-top: 2rem;
+  border-bottom: 1px solid var(--color-background-border);
+  padding-bottom: 0.25rem;
+}
+
+.content code.literal {
+  border-radius: 0.35rem;
+}
+
+/* API pages: make member blocks easier to scan */
+dl.py.class,
+dl.py.function,
+dl.py.method,
+dl.py.attribute {
+  border: 1px solid var(--color-background-border);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  margin-bottom: 0.9rem;
+}
+
+/* Keep long signatures readable on small screens */
+.sig {
+  overflow-wrap: anywhere;
+}
