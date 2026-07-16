@@ -9,10 +9,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Usare l'opzione twoside se volete stampare fronte-retro. Es.:
-% \documentclass[twoside,12pt]{report}
+ \documentclass[twoside,12pt]{report}
 % Si consiglia di diminuire il font per tesi di dottorato in formato 17x24. Es:
 % \documentclass[11pt]{report}
-\documentclass[12pt]{report}
+% \documentclass[12pt]{report}
 
 % --- PREAMBOLO ---------------------------------------------------------------
 % Inserire qui eventuali package da includere o 
@@ -51,15 +51,14 @@
 
 %   UNIVERSITA' E CORSO DI LAUREA:
 \university{Università degli Studi di Bologna}
-\faculty{Facoltà di Fisica}
 \department{Dipartimento di Fisica e Astronomia\\Augusto Righi}
 \cdl{Corso di Laurea Triennale in\\Fisica}
 
 %   TITOLO TESI:
-\title{Un Template LaTeX per Elaborati Triennali o Tesi Magistrali}
+\title{Studio della materia oscura tramite strong gravitational lensing}
 % Questo comando (opzionale) sovrascrive \title per quanto riguarda la copertina
 % Può essere usato per stampare caratteri speciali, tenendo i metadati puliti
-\printedtitle{Un Template \LaTeX{} per Elaborati\\Triennali o Tesi Magistrali}
+% \printedtitle{Un Template \LaTeX{} per Elaborati\\Triennali o Tesi Magistrali}
 
 %   AUTORE:
 \author{Sabrina Notarpietro}
@@ -69,9 +68,7 @@
 \typeofthesis{Elaborato Finale}
 
 %   RELATORE E CORRELATORE:
-\relatrice{Prof.ssa Giulia Despali}
-% \correlatore{Prof. Brian W. Kernighan}
-% \correlatore{Prof. Dennis M. Ritchie}
+\relatrice{Dott.ssa Giulia Despali}
 
 %   ANNO ACCADEMICO
 % \the\year inserisce l'anno corrente
@@ -82,54 +79,53 @@
 
 %   INDICI:
 % elenco delle figure (facoltativo)
-\figurespagetrue
+% \figurespagetrue
 % elenco delle tabelle (facoltativo)
-\tablespagetrue
+% \tablespagetrue
 % prefazioni nell'indice (facoltativo)
-\prefaceintoctrue
+% \prefaceintoctrue
 % indice nell'indice (facoltativo)
-\tocintoctrue
+% \tocintoctrue
 % --- FINE PREAMBOLO ----------------------------------------------------------
 
 \begin{document}
 
 % Creazione automatica della copertina
 % Centra la copertina nel foglio: usa questo comando per la copertina esterna
-% \makecenteredfrontpage
+\makecenteredfrontpage
 % Copertina allineata alle altre pagine: usa questo comando per la copertina interna
-\makefrontpage
+% \makefrontpage
 
 % 
 %			PAGINA DI DEDICA E/O CITAZIONE
 %			facoltativa, questa è l'unica cosa che dovete formattare a mano, un po' come vi pare
 %
 
-{\raggedleft \large \sl Questo lavoro \`{e} dedicato ai miei genitori\\
+% {\raggedleft \large \sl Questo lavoro \`{e} dedicato ai miei genitori\\
 
-\vspace{2cm}
+% \vspace{2cm}
 
-``What I cannot create, I do not understand''
+% ``What I cannot create, I do not understand''
 
-\bigskip
+% \bigskip
 
-\--- Richard Feynman\\
+% \--- Richard Feynman\\
 
-\vspace{2cm}
+% \vspace{2cm}
 
-``It's not only powerful,\\but it's also inadequate''
+% ``It's not only powerful,\\but it's also inadequate''
 
-\bigskip
+% \bigskip
 
-\--- Miller Puckette\\}
+% \--- Miller Puckette\\}
 
-\clearpage
+\cleardoublepage
 \beforepreface
-
 % 
 %			PREFAZIONE (facoltativa)
 %
 
-% \prefacesection{Prefazione}
+\prefacesection{Prefazione/Abstract}
 % Le prefazioni non sono molto comuni, tuttavia a volte capita che qualcuno voglia dire qualcosa che esuli dal lavoro in sé (come un meta-commento sull'elaborato), o voglia fornire informazioni riguardanti l'eventuale progetto entro cui la tesi si colloca (in questo caso è probabile che sia il relatore a scrivere questa parte).
 
 %
@@ -137,7 +133,7 @@
 %
 
 \prefacesection{Ringraziamenti}
-Questa sezione, facoltativa, contiene i ringraziamenti.
+Da scrivere.
 
 %
 %			Creazione automatica dell'indice
@@ -145,12 +141,11 @@ Questa sezione, facoltativa, contiene i ringraziamenti.
 \afterpreface
 %
 %			CAPITOLI
-\input{capitoli/01-introduzione.tex}
-\input{capitoli/02-stato-arte.tex}
-\input{capitoli/03-tecnologie.tex}
-\input{capitoli/04-progetto.tex}
-\input{capitoli/05-test.tex}
-\input{capitoli/06-conclusioni.tex}
+\input{Capitoli/01-Introduzione}
+\input{Capitoli/02-SGL}
+\input{Capitoli/03-SGL+DM}
+\input{Capitoli/04-Simulazioni}
+\input{Capitoli/05-Conclusioni}
 %
 %			BIBLIOGRAFIA
 %
@@ -161,4 +156,5 @@ Questa sezione, facoltativa, contiene i ringraziamenti.
 \beforebibliography
 \printbibliography
 \end{document}
+
 
