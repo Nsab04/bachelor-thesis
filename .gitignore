@@ -314,5 +314,5 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 requirememnts.txt
-.venv
-.venv-1
+.venv/
+.venv-1/
