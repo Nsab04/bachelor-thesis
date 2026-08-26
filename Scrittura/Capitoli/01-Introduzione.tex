@@ -1,0 +1,333 @@
+\chapter{Contesto cosmologico}
+\label{cap:cosmologia}
+
+\section{Il modello \texorpdfstring{$\Lambda$CDM}{LambdaCDM}}
+\label{sez:LCDM}
+La \emph{cosmologia} è la disciplina che studia l'origine, la struttura e l'evoluzione dell'Universo nel suo complesso. Essa si basa su tre osservazioni fondamentali: il paradosso di Olbers, l'espansione dell'Universo e la radiazione cosmica di fondo. Inoltre, dalle osservazioni della distribuzione di galassie e oggetti nel cielo si deduce il principio cosmologico, che permette di semplificare la trattazione dell'Universo su ampia scala.
+Il \emph{modello $\Lambda$CDM}, anche detto modello di concordanza, è la teoria che racchiude tutti i principali risultati che derivano da queste osservazioni. Esso prende il nome dai suoi due parametri più caratterizzanti: la costante cosmologica $\Lambda$, che si pensa sia legata alla cosiddetta energia oscura, responsabile dell'espansione accelerata dell'Universo, e la Cold Dark Matter (abbreviata spesso come CDM), materia oscura fredda che permette di conciliare al meglio le predizioni teoriche con i dati osservativi. 
+Tra tutti gli aspetti del modello, questa tesi approfondirà  in particolare quelli che permettono di comprendere l'origine della materia oscura e delle strutture cosmiche, indispensabili per introdurre il lensing gravitazionale discusso nei capitoli successivi. 
+
+\subsection{Il principio cosmologico e le equazioni di Friedmann}
+Il \emph{principio cosmologico} afferma che l'Universo, su larga scala, ovvero per distanze uguali o superiori a 100 Mpc, è omogeneo e isotropo \parencite{Ryden2003}.
+L'omogeneità rende equivalenti tutte le posizioni, mentre l'isotropia rende equivalenti tutte le direzioni nello spazio: l'Universo appare dunque sempre uguale, indipendentemente da dove o in che direzione viene puntato il telescopio.
+La principale evidenza osservativa a sostegno di tale principio è fornita dalla 
+terza osservazione fondamentale, ovvero la \emph{radiazione cosmica di fondo} (spesso abbreviata con la sigla CMB, dall'inglese Cosmic Microwave Background). Essa, infatti, aderisce al profilo di un corpo nero di temperatura pari a $T_{CMB}=(2.725 \pm 0.001)\ K$ su tutto il piano del cielo, con anisotropie dell'ordine di $10^{-5}\ K$.
+
+Osservare un cielo notturno buio dimostra che l'Universo non può essere eterno, ma deve avere un'età finita: infatti, solo i fotoni provenienti da distanze $d \le c \cdot t$, dove $c$ è la velocità della luce e $t$ l'età dell'Universo, possono raggiungere i nostri telescopi; in caso contrario, si dovrebbe osservare un cielo uniformemente illuminato di luce stellare.  Questa osservazione prende il nome di \emph{Paradosso di Olbers}.
+
+Diverse evidenze osservative, di cui le più importanti dovute ad Hubble e Lemaitre, indicano inoltre che le galassie si stanno allontanando le une dalle altre con velocità proporzionali alle loro distanze reciproche, seguendo la \emph{legge di Hubble-Lemaitre}  
+\begin{equation}
+    v = H_0\ D
+\end{equation}
+Il fattore di proporzionalità prende il nome di costante di Hubble, ed il suo valore esatto è ancora molto dibattuto; tuttavia, il valore più recente, derivato dalle osservazioni nell'ambito del modello $\Lambda$CDM, è $H_0 = (67.4 \pm 0.5)\ \text{ km s$^{-1}$ Mpc$^{-1}$}$ \parencite{Planck2018}.
+
+Quando si studia l'Universo su scale tanto ampie da rendere valido il principio cosmologico, ciò che determina come esso debba evolversi (e di conseguenza espandersi) è la gravità. Il campo gravitazionale è descritto dalla \emph{Teoria della Relatività Generale} di Albert Einstein ed è la manifestazione della curvatura del tessuto spazio-temporale. Lo spazio-tempo, in questo
+formalismo considerato come un ente unico, è modellato matematicamente da uno spazio vettoriale a quattro dimensioni, di cui tre spaziali e una temporale. Affermare dunque che l'Universo è in espansione equivale ad affermare che il tessuto stesso dello spazio-tempo è in espansione. In particolare, la distanza propria tra due osservatori co-moventi con il sistema di riferimento a riposo rispetto a tale espansione varia nel tempo come $$ d_p(t)= r\ a(t)$$ dove r è la distanza co-movente, costante nel tempo, mentre $a(t)$ prende il nome di \emph{fattore di scala}, ed è adimensionale; esso dipende in maniera equivalente dal redshift $z$ nella forma
+\begin{equation}
+    a(t) = \frac{1}{1+z}
+\end{equation}
+in modo che risulti normalizzato ad uno al tempo presente, ovvero per $z=0$.
+Per poter misurare le distanze in uno spazio vettoriale, è necessario definirvi una metrica; grazie all'omogeneità e all'isotropia garantite dal principio cosmologico, quella da adottare su scale cosmologiche assume una forma molto semplice e prende il nome di \emph{metrica di Friedmann-Lemaitre-Robertson-Walker} (FLRW)
+\begin{equation}
+    ds^2=-c^2\ dt^2+ a(t)^2\Bigg[\frac{dx^2}{1-\frac{kx^2}{{R_0}^2}}+x^2\ (d\theta^2+\sin\theta^2 \ d\phi^2)\Bigg]
+    \label{eq:FLRW}
+\end{equation}
+dove 
+t è il tempo cosmologico proprio, 
+$(x, \theta, \phi)$ sono le coordinate co-moventi, costanti nel tempo grazie all'omogeneità e all'isotropia, e $a(t)$ è il fattore di scala adimensionale che descrive come variano le distanze a causa dell'espansione. La costante di curvatura $k \in \{ -1, 0 , +1\}$ determina la geometria globale dello spazio, corrispondente rispettivamente a un Universo aperto, piatto o chiuso, mentre $R_0$ è il raggio di curvatura al tempo presente.
+
+Alla base della Teoria della Relatività Generale ci sono le equazioni di campo di Einstein. Esse sono dieci equazioni differenziali alle derivate parziali, accoppiate e non lineari, in generale impossibili da risolvere analiticamente, che legano i parametri geometrici dello spazio-tempo al contenuto di materia ed energia. Tuttavia, sostituendo l'Equazione \ref{eq:FLRW} al loro interno, la simmetria del problema permette di ridursi a due sole equazioni indipendenti, che legano il parametro di scala alla densità di energia e alla pressione del fluido cosmico. Esse prendono il nome di \emph{equazioni di Friedmann}; la prima esprime la relazione con la densità di energia $\varepsilon (t)$ in funzione del tempo
+\begin{equation}
+    \Bigg[\frac{\dot{a}(t)}{a(t)}\Bigg]^2=\frac{8\pi G}{3c^2}\varepsilon (t)-\frac{kc^2}{{R_0}^2}\frac{1}{a(t)^2}+\frac{\Lambda}{3}
+    \label{eq:Friedmann1}
+\end{equation}
+mentre la seconda, detta anche \emph{equazione di accelerazione}, descrive come varia la velocità di espansione dell'Universo nel tempo
+\begin{equation}
+  \frac{\ddot{a}(t)}{a(t)} = -\frac{4\pi G}{3c^2}[\varepsilon(t)+3P(t)]+\frac{\Lambda}{3}
+    \label{eq:Friedmann2}
+\end{equation}
+Vi è poi l'\emph{equazione dei fluidi}, derivante dalle due precedenti e dalla termodinamica, che lega fra loro densità di energia e pressione del fluido cosmico 
+\begin{equation}
+\dot{\varepsilon}(t)+3\frac{\dot{a}(t)}{a(t)}[\varepsilon(t) + P(t)]=0
+\end{equation}
+In entrambe le equazioni di Friedmann è presente la costante cosmologica $\Lambda$, dimensionalmente l'inverso di un tempo al quadrato; essa è la rappresentazione del contributo dell'energia del vuoto, puramente quantistica, alla pressione, pari a $P_{void}(t)=-\varepsilon(t)$.
+
+Più che la forma esplicita delle equazioni, nel seguito sarà importante il fatto che esse permettono di collegare la geometria dell'Universo al suo contenuto di materia ed energia.
+\subsection{Il parametro di densità}
+Il fattore di scala e la costante di Hubble non sono variabili indipendenti. Infatti, esse sono legate dalla relazione
+\begin{equation}
+    H_0 = \left. \frac{\dot{a}(t)}{a(t)}\right|_{t=t_0}
+    \label{eq:Hubble-scale_factor}
+\end{equation}
+Sostituendo l'Equazione \ref{eq:Hubble-scale_factor} nella \ref{eq:Friedmann1} e calcolando quest'ultima al tempo presente $t_0$, in cui il fattore di scala vale uno, si ottiene
+\begin{equation}
+    {H_0}^2=\frac{8\pi G}{3c^2}\varepsilon_0-\frac{kc^2}{{R_0}^2}
+    \label{eq:Friedmann_H0}
+\end{equation}
+Si ponga ora $k=0$, per determinare la \emph{densità critica al tempo $t=t_0$} necessaria affinché l'Universo sia piatto. Invertendo la \ref{eq:Friedmann_H0} si ottiene
+\begin{equation}
+    \varepsilon_{c,0}=\frac{3c^2{H_0}^2}{8\pi G}
+    \label{eq:critical_density0}
+\end{equation}
+dove il pedice c indica che la densità è critica, mentre lo zero indica che essa è calcolata al tempo presente.
+
+Si estenda ora la relazione \ref{eq:Hubble-scale_factor} ad un generico tempo t, definendo il \emph{parametro di Hubble} come 
+\begin{equation}
+    H(t) \equiv \frac{\dot{a}(t)}{a(t)}
+    \label{eq:Hubble_parameter}
+\end{equation}
+Ciò permette di definire la densità critica ad un istante generico come
+\begin{equation}
+    \varepsilon_c(t) = \frac{3c^2}{8\pi G} H(t)^2
+    \label{eq:critical_density}
+\end{equation}
+In cosmologia, è conveniente esprimere la densità in unità della densità critica, definendo il \emph{parametro di densità} adimensionale
+\begin{equation}
+    \Omega(t) \equiv \frac{\varepsilon(t)}{\varepsilon_c(t)}
+    \label{eq:density_parameter}
+\end{equation}
+in modo che sia immediatamente confrontabile tra contesti e componenti differenti dell'Universo. 
+La prima equazione di Friedmann è dunque riscrivibile come 
+\begin{equation}
+    1-\Omega(t)=-\frac{kc^2}{{R_0}^2a(t)^2H(t)^2}
+    \label{eq:Friedmann_densityp}
+\end{equation}
+Una delle previsioni principali del modello $\Lambda$CDM è legata al valore del parametro di densità. Esso, infatti, sostiene che la geometria dell'Universo sia piatta, a causa di una fase primordiale di inflazione. Ciò implica che il secondo membro di \ref{eq:Friedmann_densityp} sia identicamente nullo per ogni tempo t, che porta a concludere 
+\begin{equation}
+    \Omega(t)=1\ \forall t\ge 0
+    \label{eq:omega_tot}
+\end{equation}
+La densità totale di energia dell'Universo è dunque costante nel tempo e pari a quella critica attuale, descritta dall'Equazione \ref{eq:critical_density0}. Tale densità è il risultato di vari contributi: quello della radiazione, quello della materia barionica, quello della materia oscura e quello dell'energia oscura. I valori di riferimento sono forniti dalla Tabella 2 di \textcite{Planck2018}, tenendo in considerazione tutti gli spettri di temperatura e polarizzazione della CMB, la polarizzazione a bassi multipoli, la ricostruzione del lensing gravitazionale della CMB e le misure delle oscillazioni acustiche barioniche. 
+Per i casi in cui è riportato unicamente il valore di $\Omega_i h^2$ con relativa incertezza, si è utilizzata la formula 
+\begin{equation}
+  \Omega_i= \frac{\Omega_i h^2}{h^2}\ \quad \text{con} \quad h=\frac{H_0}{100\ \text{ km s$^{-1}$ Mpc$^{-1}$} }= 0.674 \pm 0.005
+  \label{eq:conversion}
+\end{equation}
+per ricavare i rispettivi parametri di densità; essendo le densità e la costante di Hubble stimati simultaneamente dalla stessa analisi, dunque correlati fra loro, non è stato possibile propagare le relative incertezze, in quanto la matrice di covarianza è ignota.
+Il parametro di densità della radiazione, invece, è stato calcolato come
+\begin{equation}
+    \Omega_{r,0 }h^2 = \frac{\pi^2}{15} \frac{(k_B T_0)^4}{\rho_{c,0} c^5 \hbar^3}
+    \label{eq:density_p_rad}
+\end{equation}
+dove $T_0$ è il valore della temperatura della CMB misurato da \textcite{Fixsen2009}, ovvero $T_0=(2.7260 \pm 0.0013)\ K$.
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|}
+    \hline
+      \textbf{Parametro di densità} & \textbf{Valore}\\
+      \hline
+      Radiazione   & $\Omega_{r,0}h^2=4.1868 \cdot 10^{-5}$\\
+      & $\Omega_{r,0}=9.2164 \cdot 10^{-5}$ \\
+      \hline
+      Materia barionica   & $\Omega_{b,0}h^2=0.02242 \pm 0.00014 $\\
+      & $\Omega_{b,0}=0.049$ \\
+    \hline
+    Materia oscura & $\Omega_{c,0}h^2=0.11933 \pm 0.00091$ \\
+     & $\Omega_{c,0}=0.263$ \\
+     \hline
+     Energia oscura & $\Omega_{\Lambda,0}=0.6889 \pm 0.0056$ \\
+     \hline
+    \end{tabular}
+    \caption{Valori dei parametri di densità previsti dal modello di concordanza. Il parametro di densità di radiazione è stato calcolato mediante l'Equazione \ref{eq:density_p_rad}, usando come valore di $T_0$ quello riportato da \textcite{Fixsen2009}; gli altri, invece, sono stati reperiti dalla Tabella 2 di \textcite{Planck2018}. Ove riportato unicamente il parametro $\Omega_i h^2$ con relativa incertezza, si è utilizzata l'Equazione \ref{eq:conversion}; non è stato possibile propagare le incertezze, in quanto le misure sono correlate e la matrice di covarianza è ignota. L'incertezza su $\Omega_{r,0}$, invece, risulta trascurabile rispetto a quella degli altri parametri cosmologici e viene generalmente omessa in letteratura. }
+    \label{tab:density_parameters_LCDM}
+\end{table}
+Sommando fra loro i parametri di densità stimati si ottiene
+\begin{equation}
+    \Omega=\Omega_{r,0}+\Omega_{b,0}+\Omega_{c,0}+\Omega_{\Lambda,0}=1.000992164
+    \label{eq:density_parameter_tot}
+\end{equation}
+Tale valore presenta uno scostamento dall'unità dell'ordine di $10^{-3}$, dunque è in accordo con la predizione teorica data dall'Equazione \ref{eq:omega_tot} per incertezze di ordine uguale o superiore.
+
+Dalla Tabella \ref{tab:density_parameters_LCDM} si deduce che solo una piccola frazione del contenuto energetico dell'Universo è ben compresa attualmente. La materia barionica, infatti, contribuisce solamente al 5\% circa, mentre la componente dominante, pari a circa il 95\%, è costituita da materia oscura ($\sim26\%$) ed energia oscura ($\sim69\%$), la cui natura rimane tutt'ora sconosciuta. Risulta dunque di fondamentale importanza studiare la dark matter, in quanto essa rappresenta oltre un quarto del contenuto energetico dell'Universo e svolge un ruolo fondamentale nella formazione ed evoluzione delle strutture cosmiche, pur non essendo ancora stata identificata a livello microscopico.
+
+\subsection{Formazione gerarchica delle strutture}
+\label{sez:hierarchical_formation}
+Il modello di concordanza descrive anche la storia termica dell'Universo e il modo in cui le strutture osservate oggi si sono formate.
+
+In particolare, esso prevede che l'Universo si sia formato da una singolarità iniziale, il \emph{Big Bang}, evolutosi poi in un plasma denso e opaco, di temperatura dell'ordine di $10^{15}$ K, a seguito dell'inflazione. Tale plasma era omogeneo e isotropo, e presentava una geometria piatta, come l'Universo attuale. 
+Con il progredire dell'espansione, il plasma si è raffreddato e la sua densità è diminuita.
+Quando la densità dell'Universo è scesa oltre una certa soglia, le interazioni delle particelle di materia oscura  sono diventate troppo rare per mantenere l'equilibrio termico: la DM si è disaccoppiata dunque dal resto del plasma, e ha iniziato ad interagire solo gravitazionalmente. Il momento preciso di tale disaccoppiamento dipende sia dalla massa della particella di DM che dalla forza delle sue interazioni con il plasma primordiale, in quanto corrisponde al momento in cui il tasso di interazione $\Gamma$ diventa inferiore al tasso di espansione di Hubble $H(t)$. 
+
+Si considerino piccole fluttuazioni quantistiche del plasma primordiale $(|\delta(\vec{r}) |\ll 1)$, generate durante la fase di inflazione. 
+Esse permettono di considerare l'espansione dell'Universo ancora come isotropa e mantenere dunque la metrica indicata in \ref{eq:FLRW}, con $\vec{r}$ coordinate co-moventi.
+Per studiare le fluttuazioni più agevolmente, è utile espanderle nelle loro componenti di Fourier in un volume co-movente $V$ fissato 
+\begin{equation}
+    \delta(\vec{r})=\frac{V}{(2\pi)^3}\int \delta_{\vec{k}}e^{-i\vec{k}\cdot \vec{r}}\ d^3k
+\end{equation}
+dove le singole componenti si trovano facendo 
+\begin{equation}
+    \delta_{\vec{k}}=\frac{1}{V}\int \delta(\vec{r})e^{i\vec{k}\cdot \vec{r}}\ d^3k
+\end{equation}
+Lo \emph{spettro di potenza} delle fluttuazioni è definito dal valore di aspettazione del modulo quadro delle singole componenti, mediato su tutte le possibili direzioni del numero d'onda $\vec{k}$
+\begin{equation}
+    P(k)=\langle| \delta_{\vec{k}}|^2\rangle
+\end{equation}
+La maggior parte degli scenari formulati per l'inflazione prevede che il campo $\delta(\vec{r})$ sia gaussiano e che lo spettro di potenza assuma la forma 
+\begin{equation}
+    P(k) \propto k^n 
+\end{equation}
+con $n=1$ come esponente più probabile. 
+Tale legge di potenza favorita prende il nome di \emph{profilo di Harrison-Zel'dovich} e descrive le perturbazioni di densità attese immediatamente dopo l'inflazione. 
+
+Lo spettro appena introdotto non rimane tuttavia invariato nel tempo: inizialmente l'Universo era dominato dalla radiazione, ma per un tempo corrispondente a  $t_{rm}\sim 4.7 \cdot 10^4$ anni dopo il Big Bang si è giunti all'equivalenza radiazione-materia. Fra la fine dell'inflazione e l'epoca di equivalenza, la forma dello spettro di potenza è cambiata, a causa del disaccoppiamento della materia oscura; il modo in cui si è modificata dipende dunque dalle proprietà di quest'ultima. Un esempio di profili diversi, tra cui quelli menzionati in seguito, è mostrato in Figura \ref{fig:spettro_potenza}, riprodotta da \textcite{Wilkinson2016}; essa mostra anche l'andamento che si avrebbe se la natura della DM fosse barionica, come quella della materia ordinaria. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Immagini/1-Contesto cosmologico/The linear matter power spectrum in four distinct models.png}
+    \caption{Spettro di potenza lineare della materia, ottenuto mediante quattro modelli diversi: Harrison-Zel'dovich (viola tratteggiato), materia oscura fredda (arancione tratteggiato), materia oscura calda (rosso tratteggiato) e materia barionica (verde). Immagine riprodotta da \textcite{Wilkinson2016}.}
+    \label{fig:spettro_potenza}
+\end{figure}
+In particolare, è importante distinguere fra \emph{materia oscura fredda}, predetta dal modello $\Lambda$CDM, e \emph{materia oscura calda}, spesso abbreviata come HDM dall'inglese Hot Dark Matter.
+La differenza principale è che la prima è costituita da particelle che erano \emph{non-relativistiche} al momento del disaccoppiamento, mentre la seconda è costituita da particelle che erano \emph{relativistiche} al momento del disaccoppiamento. 
+Ciò implica che le particelle di HDM erano libere di muoversi in direzioni casuali a velocità prossime a quella della luce; tale flusso libero aveva come effetto netto quello di appiattire fluttuazioni di densità di lunghezza d'onda inferiori a $\lambda =\frac{2\pi}{k}\sim ct_h$, dove 
+\begin{equation}
+    t_h\sim 2 \cdot 10^{12}\ \text{s}\Bigg(\frac{m_hc^2}{2 \ \text{eV}}\Bigg)^{-2}
+\end{equation}
+è il tempo affinché la velocità delle particelle diventi non-relativistica, e dipende dalla massa della particella considerata $m_h$. La massa corrispondente a fluttuazioni di densità di questa entità è dell'ordine di $10^{16}\ M_\odot$, ovvero comparabile a quella dei super-ammassi di galassie.  
+Di conseguenza, in un Universo con prevalenza di materia oscura calda le prime strutture a subire il collasso gravitazionale sarebbero quelle di dimensioni maggiori, mentre le strutture più piccole si dovrebbero formare solo in un secondo momento, mediante un processo di \emph{frammentazione} (scenario top-down).
+Le evidenze osservative, tuttavia, mostrano che le strutture più vecchie nel nostro Universo sono le galassie, mentre i super-ammassi stanno collassando solo oggi. Questo ci permette di dedurre che le strutture si sono formate in maniera \emph{gerarchica} (bottom-up), dalle più piccole alle più grandi, come previsto da un modello in cui la maggior parte della materia oscura è fredda. Ripetendo il ragionamento sopra, infatti, si trova che la massa associata alla scala di free streaming della materia oscura fredda è estremamente inferiore rispetto alla precedente, dell'ordine di quella di un pianeta o di un piccolo corpo asteroidale $(10^{-4}-10^{-6}\ M_\odot)$, a seconda della massa della particella considerata. 
+In questo caso, le perturbazioni di interesse cosmologico non vengono smorzate dal moto delle particelle, ma possono crescere per instabilità gravitazionale già nelle prime fasi dell'evoluzione dell'Universo. In tale scenario, collassano dapprima i piccoli aloni di materia oscura; questi, attraverso successivi processi di accrescimento e fusione, danno origine ad aloni sempre più massicci, all'interno dei quali si formano galassie, gruppi e infine ammassi di galassie. Ciò è in accordo con le osservazioni e costituisce uno dei principali successi del modello cosmologico $\Lambda$CDM. 
+
+Come mostrato in questa sezione, la materia oscura costituisce un ingrediente essenziale del modello cosmologico standard e della formazione delle strutture. La sua natura rimane tuttavia sconosciuta e rappresenta uno dei principali problemi aperti della cosmologia moderna. Nel seguito verranno approfondite le principali caratteristiche di questa componente e le evidenze a sostegno della sua esistenza.
+
+\section{La materia oscura}
+Da quasi un secolo, le evidenze osservative indicano che esiste una componente predominante della materia (pari a circa l'85 \% di quella totale nell'Universo) che non emette luce e ha natura non-barionica. Essa prende il nome di \emph{materia oscura} (in inglese Dark Matter, DM), sia perché non interagisce con i fotoni, sia perché non è ancora chiaro quale sia la sua natura microscopica. Nel corso del tempo, sono stati formulati diversi modelli che la descrivano, ciascuno dei quali si differenzia dagli altri per le proprietà associate alla sua particella fondamentale. Nel seguito sono presentati i principali riferimenti storici e le tecniche di rilevazione della DM, in relazione al modello attualmente più quotato della materia oscura fredda; nella parte finale, sono brevemente esposti i principali limiti di tale modello e le differenti predizioni che proposte alternative comportano. 
+\subsection{Evidenze osservative}
+Storicamente, il primo a osservare una forte discrepanza tra massa dinamica e massa osservabile negli ammassi di galassie (all'epoca chiamati nebulose extragalattiche) fu Zwicky nel 1933, analizzando l'ammasso Coma \parencite{Zwicky1933}. In particolare, misurando i redshift e i blueshift delle galassie dell'ammasso attraverso lo spostamento Doppler delle loro linee spettrali, egli ottenne una dispersione di velocità pari o superiore a $1000\ \text{km/s}$. Tale valore era circa un'ordine di grandezza superiore rispetto a quello atteso per la velocità media delle galassie nell'ammasso $(\bar{v}^2)^{\frac{1}{2}}=80$ km/s, stimato assumendo un sistema all'equilibrio ed applicando il teorema del Viriale sulla massa luminosa. Questa forte discrepanza lo portò a concludere che la massa totale del sistema Coma doveva essere almeno 400 volte superiore rispetto a quella osservabile: fu la prima evidenza della presenza di una componente di materia invisibile, che Zwicky chiamò \textit{dunkle Materie} ("materia oscura").
+
+Circa quarant'anni dopo, Vera Rubin e i suoi collaboratori scoprirono che, similmente a quanto accadeva nell'ammasso Coma, anche le stelle nella regione più esterna della galassia di Andromeda ruotavano più velocemente di quanto atteso \parencite{RubinFord1970}.
+Infatti, assumendo una rotazione rigida di un punto materiale attorno al centro galattico e considerando la distribuzione di massa luminosa della galassia, ci si aspetterebbe un andamento pressoché lineare nel bulge e una decrescita dolce nel disco della spirale, seguita da una caduta kepleriana al di fuori di esso. Dalla terza legge di Keplero si avrebbe
+\begin{equation}
+    \tau^2=\frac{4\pi^2}{GM(r)}r^3 \quad \text{con} \quad \tau=\frac{2\pi r}{V_c(r)}
+\end{equation}
+dove $\tau$ è il periodo orbitale, $G$ è la costante gravitazionale newtoniana, $M(r)$ è la massa compresa in una sfera di raggio $r$, assumendo simmetria sferica, e $V_c(r)$ è la velocità orbitale delle stelle in funzione della loro distanza dal centro galattico. Eguagliando le due formule e invertendo si trova
+\begin{equation}
+    V_c(r)=\sqrt{\frac{GM(r)}{r}} \propto \frac{1}{\sqrt{r}} \quad \text{caduta kepleriana}
+\end{equation}
+L'andamento osservato, invece, rispecchia quello riportato in Figura \ref{fig:NGC6503}, riprodotta da \textcite{Freese2009}: diversamente da quanto appena calcolato, le velocità orbitali delle stelle attorno al centro galattico rimangono pressoché costanti anche a raggi molto grandi.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Immagini/1-Contesto cosmologico/NGC6503.pdf}
+    \caption{Curva di rotazione della galassia NGC6503: essa mostra il tipico profilo della velocità orbitale in funzione della distanza dal centro galattico per le galassie a spirale (linea continua e punti sperimentali). La linea tratteggiata e quella punteggiata rappresentano i contributi predetti rispettivamente per il disco stellare e la componente gassosa della galassia. Per un corretto fit dei dati sperimentali è necessario aggiungere il contributo di un alone di materia oscura (linea tratteggiata e punteggiata). Immagine riprodotta da \textcite{Freese2009}.}
+    \label{fig:NGC6503}
+\end{figure}
+Lo stesso andamento è stato osservato in tutte le galassie a spirale studiate finora, compresa la nostra Via Lattea. La spiegazione più semplice per questo fenomeno è quella di ammettere che, anche nelle galassie a spirale, è presente più massa di quella osservabile, la quale fornisce la forza necessaria ad accelerare le orbite: le galassie devono formarsi in enormi aloni di materia oscura, che ne costituiscono il 95\% della massa totale e che si estendono ben oltre la parte luminosa della galassia.
+Le curve di rotazione mostrano dunque che la discrepanza tra massa dinamica e luminosa non riguarda soltanto gli ammassi di galassie, ma è presente anche su scala galattica.
+
+Il limite principale dello studio delle curve di rotazione è che i dati possono essere raccolti solo fin dove è presente materia stellare o idrogeno neutro, ovvero entro distanze dell'ordine di 10 kpc. Ciò permette di vedere l'inizio degli aloni di DM, ma la maggior parte della loro estensione rimane invisibile. Per ovviare a questo problema si utilizza come metodo di rilevazione l'\emph{effetto di lente gravitazionale}. Secondo la teoria della Relatività Generale, infatti, la massa e l'energia curvano lo spazio-tempo, causando la deflessione dei raggi luminosi. Tale effetto è tanto più accentuato quanto maggiori sono le masse considerate e permette dunque di inferirne la presenza anche se queste ultime non emettono luce. Tra i casi più emblematici vi è il Bullet Cluster \parencite{Clowe2006}, il quale è nato dalla collisione tra due ammassi di galassie; oggi è possibile osservare la fase post-collisionale, in cui i centri si stanno allontanando fra loro prima di essere ri-attratti uno verso l'altro. 
+\begin{figure}
+    \centering
+\begin{subfigure}[b]{0.47\textwidth}
+        \centering
+         \includegraphics[width=\linewidth]{Immagini/1-Contesto cosmologico/Bullet_Cluster_visible.png}      
+        \caption{Immagine a colori dell'ammasso 1E 0657-558 (Bullet Cluster) ottenuta con il telescopio Magellan; la barra bianca indica una scala di 200 kpc alla distanza dell'ammasso.}
+        \label{fig:BC_visible}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Immagini/1-Contesto cosmologico/Bullet_Cluster_Xray.png}
+    \caption{Immagine dell'ammasso ottenuta con Chandra, con un tempo di esposizione totale di 500 ks; la barra bianca indica una scala di 200 kpc alla distanza dell'ammasso.}
+    \label{fig:BC_Xray}
+    \end{subfigure}
+    \caption{Immagini del Bullet Cluster in banda ottica (a sinistra) e in banda X (a destra), riprodotte da \textcite{Clowe2006}. I contorni verdi rappresentano le curve di livello della distribuzione di massa, infierite dal lensing gravitazionale debole. La massa luminosa, illustrata dalle regioni colorate nel pannello di destra, non coincide con i profili trovati, suggerendo la presenza di una frazione importante di materia oscura debolmente interagente.}
+    \label{fig:Bullet_Cluster}
+\end{figure}
+La Figura \ref{fig:Bullet_Cluster} mostra la mappa della distribuzione di massa ottenuta mediante il lensing gravitazionale debole. Il gas barionico caldo, rilevato in banda X e corrispondente alle zone colorate del pannello \ref{fig:BC_Xray}, risulta nettamente separato dalla distribuzione di massa totale ricostruita mediante il lensing, dimostrando la presenza di una frazione importante di materia oscura debolmente interagente. Inoltre, dalla forma del gas si nota chiaramente una passata compenetrazione tra le singole nuvole, che conferma l'ipotesi della formazione tramite collisione. 
+
+Per concludere, è importante sottolineare che la materia oscura non è l'unica spiegazione possibile per risolvere le discrepanze tra massa luminosa e massa dinamica dei sistemi su scala galattica ed extragalattica. Un approccio diverso consiste nel proporre modelli alternativi per la gravità, come la \emph{dinamica newtoniana modificata} (in inglese Modified Newtonian Dynamics, MOND). Essi forniscono predizioni corrette per molti fenomeni su scala galattica, ma falliscono nel trovare una spiegazione per i sistemi ad ampia scala, come il Bullet Cluster, o nel fare stime sulla CMB. 
+Inoltre, essi hanno in generale una bassa capacità predittiva: anche quando riescono a spiegare le osservabili a posteriori tramite un fit, essi non riescono a infierirle efficacemente a priori, a differenza dei modelli di DM. Per questi motivi, ad oggi l'ipotesi della materia oscura rimane la più accreditata.
+
+\subsection{Predizioni del modello CDM}
+\label{sez:LCDM_predictions}
+
+Come visto nella Sezione \ref{sez:LCDM}, il modello che si adatta maggiormente alle osservazioni cosmologiche attuali, in un'ampia varietà di scale e condizioni fisiche, è quello della materia oscura fredda, ovvero non relativistica al momento del disaccoppiamento dal plasma primordiale. Tramite simulazioni del modello \LCDM, è possibile derivare le previsioni teoriche delle proprietà attese dagli aloni di qualunque massa; tuttavia, le proprietà che variano principalmente tra i modelli  sono relative a sistemi di piccola massa (ovvero su scala galattica), e sono dunque questi i più utili da confrontare con i dati ottenuti sperimentalmente. Poiché il modello \LCDM predice una formazione gerarchica delle strutture, studiare gli aloni più piccoli è di importanza fondamentale per comprendere meglio la loro evoluzione, ed estenderla poi a strutture sempre più ampie.
+
+La caratteristica principale della materia oscura fredda è quella di essere \emph{non collisionale} (collisionless), ovvero possedere una sezione d'urto di auto-interazione compatibile con zero. Questa proprietà, in combinazione alla formazione bottom-up, risulta in una popolazioni di aloni con attributi distintivi.
+In primo luogo, il numero di strutture attese per unità di massa segue, in prima approssimazione, una legge di potenza \parencite{Vegetti2024}
+\begin{equation}
+    \frac{dn}{dM} \propto M^{-\alpha}
+    \label{eq:dn/dM}
+\end{equation}
+dove $\alpha=1.9$ per masse inferiori a $M\sim10^{11}\ M_\odot$. Tale equazione afferma che il numero di aloni che ci si attende di osservare diminuisce all'aumentare della loro massa, risultando in un'abbondanza di aloni di piccola massa e rendendo più rari quelli di dimensioni maggiori.
+Queste previsioni derivano dalle proprietà del campo primordiale delle fluttuazioni di densità e dal loro successivo collasso gravitazionale, che porta alla formazione di aloni in equilibrio idrostatico.
+
+Quando gli aloni più piccoli vengono progressivamente inglobati in sistemi di massa maggiore, le forze mareali dell'ospite generalmente tendono a spogliarli progressivamente di massa, fino a distruggerli. Alcuni, tuttavia, riescono a sopravvivere all'accrescimento, formando dei sotto-aloni (subhaloes), rilevabili sia tramite lensing che, ove presenti, tramite i satelliti visibili al loro interno, come accade ad esempio per le Nubi di Magellano nella Via Lattea.
+
+Aloni con la stessa massa possono produrre perturbazioni diverse a seconda di come essa è spazialmente distribuita, ovvero in base al profilo di densità.
+La densità di massa media di un alone di materia oscura fredda in funzione del raggio, comune alla maggior parte dei sistemi, è descritta dal profilo di Navarro, Frenk e White (NFW, \cite{NavarroFrenk1996})
+\begin{equation}
+    \rho(r)=\frac{\rho_s}{\frac{r}{r_s}\Big(1+\frac{r}{r_s}\Big)^2}
+    \label{eq:NFW}
+\end{equation}
+dove $r_s$ è il raggio di scala, mentre $\rho_s$ è la densità di normalizzazione. Il \emph{raggio di scala} definisce un cambio di comportamento nel profilo: vicino al centro, ovvero per $r\ll r_s$, la massa risulta molto concentrata, in quanto 
+\begin{equation}
+    \rho(r)\propto \frac{1}{r}
+\end{equation}
+mentre nelle zone periferiche, dove $r\gg r_s$, la densità diminuisce molto rapidamente 
+\begin{equation}
+      \rho(r)\propto \frac{1}{r^3}
+\end{equation}
+Ciò implica che quando il raggio è esattamente zero, la densità di massa diverge (sebbene la massa rimanga finita e tenda a zero), originando una cuspide centrale.
+
+Il profilo di densità di massa dei sotto-aloni è più complesso e devia dal NFW a causa dei processi di accrescimento. Esso tende a presentare una concentrazione maggiore di quella che ci si aspetterebbe se le corrispondenti strutture fossero isolate. Per questo, le proprietà dei subhaloes sono descritte meglio dalla velocità circolare massima $V_{max}$ e dal raggio in cui essa viene raggiunta $r_{max}$.  Tali variabili sono legate in generale alla distribuzione di massa dalla formula
+\begin{equation}
+    V_{circ}(r)=\sqrt{\frac{GM(r<r*)}{r}}
+\end{equation}
+dove $V_{circ}$ in questo caso sarà quella massima ed $r*=r_{max}$, così che la distribuzione di massa corrisponda a quella presente entro il raggio massimo considerato.
+\subsection{Problemi del modello CDM su piccola scala}
+\label{sez:small_scale_problems}
+Svariate osservazioni astrofisiche che spaziano dalla scala dell'orizzonte degli eventi ($\sim 15,000$ Mpc) fino alla distanza tipica tra galassie ($\sim 1$ Mpc) sono consistenti con un Universo dominato da energia oscura e materia oscura fredda, come descritto dal modello \LCDM. Tuttavia, alcune osservazioni per distanze inferiori al Mpc e per masse $M<10^{11}\ M_\odot$ hanno evidenziato una serie di limiti e problematiche.
+
+In primo luogo, l'Equazione \ref{eq:dn/dM} e le simulazioni del modello \LCDM prevedono che attorno a galassie come la Via Lattea si presentino migliaia di sotto-aloni di DM di massa $M>10^7\ M_\odot$, che in linea di principio potrebbero ospitare una galassia. Tuttavia, come descritto in \textcite{Bullock2017}, entro un raggio di 300 kpc dalla Via Lattea sono note solo circa 50 galassie con massa stellare $M_\star>300\ M_\odot$, soglia con la quale si includono anche le galassie nane ultra-deboli. Questa discrepanza è detta \emph{Missing Satellites Problem} (problema dei satelliti mancanti) e si suppone sia dovuta al fatto che il processo di formazione delle galassie diventi sempre più inefficiente al calare della massa dell'alone. Di conseguenza, gli aloni di materia oscura più piccoli esistono, ma non hanno formato stelle (e dunque non sono osservabili nel visibile).
+Una sintesi grafica del problema dei satelliti mancanti è rappresentata in Figura \ref{fig:missing-satellites}, riprodotta da \textcite{Bullock2017}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Immagini/1-Contesto cosmologico/missing_satellites.png}
+    \caption{Sintesi grafica del \textit{ Missing Satellites Problem}. La linea nera continua rappresenta la funzione di massa degli aloni di materia oscura prevista dal modello $\Lambda$CDM, mentre la linea tratteggiata mostra la corrispondente massa barionica attesa assumendo la frazione barionica cosmica. I punti colorati rappresentano la funzione di massa stellare osservata, mentre la banda grigia indica l'incertezza dovuta alle correzioni di completezza alle basse masse. La discrepanza tra previsione teorica e osservazioni suggerisce che una grande frazione dei sottoaloni di piccola massa non abbia formato stelle. Figura riprodotta da \textcite{Bullock2017}; i dati osservativi sono tratti da \textcite{Bernardi2013} e \textcite{Wright2017}.
+}
+ 
+    \label{fig:missing-satellites}
+\end{figure}
+
+Inoltre, come visto nella sezione \ref{sez:LCDM_predictions}, la densità di massa media prevista per gli aloni di materia oscura in funzione del raggio è descritta dal profilo di Navarro, Frenk e White (Eq. \ref{eq:NFW}), che prevede una cuspide centrale. Le curve di rotazione osservate in molte galassie nane risultano invece meglio descritte da un \emph{core}, ovvero una densità quasi costante nelle zone centrali. Tale discrepanza prende il nome di \emph{Core-Cusp Problem} (letteralmente, problema nucleo-cuspide), ed è sintetizzato in Figura \ref{fig:core-cusp}, riprodotta da \textcite{Bullock2017}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\linewidth]{Immagini/1-Contesto cosmologico/core-cusp.png}
+    \caption{Sintesi grafica del \textit{core-cusp problem}. La linea tratteggiata rappresenta il profilo NFW previsto dal modello \LCDM per una galassia con velocità massima di rotazione $V_{\mathrm{max}}\simeq 40,\mathrm{km,s^{-1}}$. I punti sperimentali rosa e grigi mostrano invece le curve di rotazione di due galassie osservate dal progetto LITTLE THINGS \parencite{Oh2015}. Mentre il profilo NFW presenta una cuspide centrale, i dati osservativi risultano meglio descritti da un profilo con nucleo a densità quasi costante, rappresentato dalla linea azzurra e descritto dal profilo di Burkert \parencite{Burkert1995}.
+}
+    \label{fig:core-cusp}
+\end{figure}
+
+Infine, un'ulteriore difficoltà del modello \LCDM è il cosiddetto \emph{Too-Big-to-Fail Problem}. Le simulazioni prevedono l'esistenza di alcuni sotto-aloni talmente massicci da non poter fallire nella formazione stellare; essi dovrebbero quindi ospitare galassie satelliti facilmente osservabili. Tuttavia, tali galassie non vengono osservate, oppure presentano densità centrali significativamente inferiori a quelle previste dalle simulazioni. 
+
+In conclusione, queste tensioni tra osservazioni e previsioni teoriche del modello indicano che potrebbe essere necessario considerare una distribuzione di massa all'interno degli aloni più varia rispetto al semplice profilo NFW.
+Sebbene sia possibile che tali discrepanze siano riconducibili a un modelling ancora incompleto dei processi barionici, esse hanno anche motivato la formulazione di modelli alternativi di materia oscura, nei quali vengono modificate le proprietà microscopiche delle particelle rispetto all'ipotesi della CDM. Tra i più studiati vi sono la \emph{Warm Dark Matter} (WDM), costituita da particelle con velocità termiche non trascurabili, e la \emph{Self-Interacting Dark Matter} (SIDM), in cui le particelle di materia oscura possono interagire tra loro; entrambi sono approfonditi brevemente nel paragrafo seguente. Tali modelli possono alterare la formazione e la struttura degli aloni di materia oscura, offrendo possibili spiegazioni per alcune delle tensioni osservate su piccola scala.
+% Slide DM + articolo nuovo
+\subsection{Modelli alternativi: WDM e SIDM}
+Tra le estensioni più semplici del paradigma CDM vi è la \emph{Warm Dark Matter} (WDM), nella quale le particelle possiedono una velocità termica residua dopo il disaccoppiamento, sufficiente a sopprimere la formazione delle strutture di piccola massa attraverso il fenomeno del \emph{free streaming}. Essa costituisce un'alternativa alla materia oscura calda, a cui si era accennato nella Sezione \ref{sez:hierarchical_formation} sulla formazione gerarchica delle strutture, in quanto un Universo fatto esclusivamente di HDM è già stato escluso dalle osservazioni su cluster di galassie ad ampia scala. Sia le particelle di HDM che quelle di WDM possiedono una velocità termica non trascurabile al momento del disaccoppiamento, ma mentre per le prime è relativistica, per le seconde non lo è. Ciò porta ad una soppressione nel numero di aloni di piccola massa attesi in relazione a quelli previsti dal modello CDM \parencite{Vegetti2024}
+\begin{equation}
+    \frac{n_{\mathrm{WDM}}}{n_{\mathrm{CDM}}} = \left (1+ \gamma \frac{M_{\mathrm{hm}}}{M} \right )^{\beta}
+\end{equation}
+dove $M_{\mathrm{hm}}$ è la \emph{half-mode mass}, ovvero la massa corrispondente alla scala alla quale la radice quadrata dello spettro di potenza lineare della materia risulta ridotta del 50\% rispetto al caso della CDM. Essa è inversamente proporzionale alla massa della particella di WDM $m_{DM}$, dunque più leggera è la particella, maggiore ci si aspetta che sia tale soppressione.
+I parametri $\gamma$ e $\beta$ sono invece derivati dal fit: il primo stabilisce a quale massa inizia a diventare significativa la soppressione, mentre il secondo controlla quanto rapidamente la funzione di massa decresce al di sotto della half-mode mass.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Immagini//1-Contesto cosmologico/WDM.png}
+    \caption{Confronto tra lo spettro di potenza della materia (sinistra) e la funzione di massa degli aloni (destra) nei modelli CDM, WDM e SIDM. In entrambi i pannelli, la curva nera rappresenta il modello CDM, mentre le curve colorate corrispondono a diversi modelli alternativi di WDM e SIDM. Rispetto alla CDM, tali modelli prevedono una soppressione delle strutture alle piccole scale, che si riflette in una riduzione del numero di aloni di bassa massa. Figura riprodotta da \textcite{Vegetti2024}.
+}
+    \label{fig:WDM}
+\end{figure}
+
+Per quanto riguarda la materia oscura auto-interagente, ovvero la \emph{Self-Interacting Dark Matter} (SIDM), la sua caratteristica distintiva è quella di essere collisionale: le particelle possono interagire fra loro scambiandosi energia e momento, ma tale interazione non è descritta dal potenziale gravitazionale. Tali interazioni possono essere elastiche o anelastiche e la sezione d'urto $\sigma$ può dipendere dalla velocità. Tale modello spiegherebbe il core centrale misurato negli aloni, la cui profondità e dimensione dipenderebbero fortemente da $\sigma$.
+Come nel caso della WDM, anche in quello della SIDM vi è una soppressione nel numero di aloni attesi. Durante il processo di accrescimento, infatti, le auto-interazioni tra le particelle di materia oscura del sotto-alone e quelle dell'alone ospite possono causare un fenomeno di \textit{ram-pressure stripping}, che favorisce la perdita di massa e, nei casi più estremi, la distruzione del sotto-alone. L'efficienza di questo processo dipende dalla sezione d'urto di auto-interazione: valori molto elevati produrrebbero una soppressione significativa del numero di sotto-aloni, ma sono oggi esclusi dalle osservazioni degli ammassi di galassie.
+
+Sebbene le predizioni attese da WDM e SIDM siano sotto molti aspetti simili fra loro, i meccanismi fisici grazie ai quali si manifestano sono molto diversi.
+Le differenti predizioni dei modelli descritti in questo capitolo si riflettono direttamente nelle proprietà degli aloni e dei sotto-aloni di materia oscura, e permettono dunque di porre dei vincoli osservativi per comprenderne meglio la natura microscopica. Tra le tecniche osservative più promettenti per distinguerli vi è il lensing gravitazionale, il cui formalismo e le cui applicazioni saranno presentati nel capitolo seguente. 
+
+In particolare, poiché gli aloni risultano soppressi sia in numero che in concentrazione, e la densità degli aloni ne altera le proprietà di lensing, il modello WDM predice meno perturbazioni su piccola scala nelle immagini rispetto a quanto uno si aspetterebbe con la CDM.
+
+Inoltre,  a livello osservativo, le differenze nella composizione degli aloni di SIDM al variare di $\sigma$ ne renderebbero alcuni lenti più efficaci rispetto ad altri.
+ Il lensing gravitazionale forte, essendo sensibile sia all'abbondanza sia alla distribuzione di massa dei sotto-aloni, costituirebbe quindi uno strumento indipendente per porre vincoli alla sezione d'urto di auto-interazione della materia oscura.
+% Vegetti 2024, Strong Gravitational Lensing as a Probe of Dark Matter, intro e sezione successiva
+
+
