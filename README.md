@@ -153,7 +153,7 @@ jupyter
 PyLensLib
 ```
 
-**PyLensLib** models gravitational lenses, computes deflection fields, generates critical curves and caustics, performs ray tracing, and simulates lensed galaxy images. It must be available in your Python environment (see the [PyLensLib repository](https://github.com/) for installation — it is not distributed via PyPI).
+**PyLensLib** models gravitational lenses, computes deflection fields, generates critical curves and caustics, performs ray tracing, and simulates lensed galaxy images. It must be available in your Python environment (see the [PyLensLib repository](https://maxmen.github.io/pyLensLib/) for installation — it is not distributed via PyPI).
 
 Install the standard dependencies with:
 
