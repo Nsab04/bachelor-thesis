@@ -1,0 +1,208 @@
+\chapter{Esempio di codice sviluppato}
+\label{cap:appendice}
+
+In questa Appendice sono riportati i principali frammenti di codice utilizzati per simulare e rappresentare i sistemi in Figura \ref{fig:SIE_sim}. Come nel resto del progetto, il codice e i relativi commenti sono in lingua inglese.
+
+In primo luogo, si è istanziata la sorgente imperturbata, utilizzando i parametri e i profili definiti nelle Tabelle \ref{tab:lens_par_sim} e \ref{tab:source_par_sim} e si sono salvate in variabili globali le relative immagini di interesse.
+Successivamente, si è definita la funzione \texttt{make\_composite\_lens}, che costruisce sia il satellite sulla base del profilo di densità di massa scelto dall'utente (SIE o NFW), sia la lente composita. Si sono poi definiti la posizione del perturbatore, in quanto mantenuta costante nei due casi, e i parametri di base dei due profili.
+\begin{lstlisting}
+    source_unperturbed = sersic(size=fov, Npix=npix, gl=lens, save_unlensed=True, **source_kwargs)
+    total_image_unperturbed = source_unperturbed.image + lens_light.image
+    difference_unperturbed = source_unperturbed.image - source_unperturbed.image
+
+    # Create a composite lens made of the main lens plus either a SIE or NFW perturber
+    def make_composite_lens(
+    base_lens,
+    perturbation_kind,
+    perturbation_kwargs,
+    co,
+    zl,
+    zs,
+    theta,
+    ):
+        if perturbation_kind == "SIE":
+            perturbation = sie(
+            co=co,
+            zl=zl,
+            zs=zs,
+            **perturbation_kwargs 
+            )
+
+        if perturbation_kind == "NFW":
+            perturbation = nfwell(
+          co=co,
+          zl=zl,
+          zs=zs,
+          **perturbation_kwargs 
+        )
+        perturbation.setGrid(theta=theta)
+
+        composite = compositeModel(
+            co,
+            models=[base_lens, perturbation]
+        )
+
+        composite.zl = zl
+        composite.zs = zs
+        composite.dl = base_lens.dl
+        composite.ds = base_lens.ds
+        composite.dls = base_lens.dls
+        composite.setGrid(theta=theta)
+
+        return perturbation, composite
+
+    pert_pos = [1, -1.05]
+
+    second_sie_kwargs = {
+    "sigma0": 90.0,
+    "q": 0.9,
+    "pa": np.deg2rad(-20.0),
+    "theta_c": 1.0e-4,
+    "x1": pert_pos[0], 
+    "x2": pert_pos[1], 
+    }
+
+    second_nfw_kwargs = {
+    "mass": 5.0e11, # total mass
+    "conc": 11.0, # concentration
+    "q": 0.95,
+    "pa": np.deg2rad(-20.0),
+    "x1": pert_pos[0],
+    "x2": pert_pos[1],
+    }
+\end{lstlisting}
+La funzione appena definita viene quindi utilizzata per aggiungere alla lente principale un satellite SIE con dispersione di velocità variabile, salvando le lenti composite e le relative linee critiche per poterle successivamente rappresentare.
+\begin{lstlisting}
+    sigma0_values_pert = [50.0, 70.0, 90.0]
+    second_lens_SIE_all = []
+    composite_lens_SIE_all = []
+    composite_critical_lines_SIE = []
+    
+    for sigma0_pert in sigma0_values_pert:
+        second_sie_kwargs_var = {
+        "sigma0": sigma0_pert, 
+        "q": 0.9,
+        "pa": np.deg2rad(-20.0),
+        "theta_c": 1.0e-4,
+        "x1": pert_pos[0], 
+        "x2": pert_pos[1], 
+        }
+    
+        second_lens_SIE, lens_with_second_SIE = make_composite_lens(lens, "SIE", second_sie_kwargs_var, co, zl, zs, theta)
+
+        second_lens_SIE_all.append(second_lens_SIE)
+        composite_lens_SIE_all.append(lens_with_second_SIE)
+
+        critical_lines_with_second_SIE = [lens_with_second_SIE.getCritPoints(cl) for cl in lens_with_second_SIE.tancl()]
+        composite_critical_lines_SIE.append(critical_lines_with_second_SIE)
+\end{lstlisting}
+Il blocco di codice seguente esegue il ray tracing attraverso la lente composita e salva le immagini simulate, le mappe di convergenza e i residuali in apposite liste, che verranno successivamente utilizzate per la rappresentazione grafica.
+\begin{lstlisting}
+    composite_sources_all_SIE = []
+    composite_total_images_all_SIE = []
+    composite_kappa_maps_all_SIE = []
+    SIE_residuals = []
+    
+    for i, pert in enumerate(second_lens_SIE_all):
+        source_with_second_SIE = sersic(
+        size=fov,
+        Npix=npix,
+        gl=composite_lens_SIE_all[i],
+        save_unlensed=True,
+        **source_kwargs,
+        )
+        composite_sources_all_SIE.append(source_with_second_SIE)
+        composite_kappa_maps_all_SIE.append(composite_lens_SIE_all[i].ka)
+    
+        total_image_with_second_SIE = source_with_second_SIE.image + lens_light.image
+        composite_total_images_all_SIE.append(total_image_with_second_SIE)
+    
+        difference_SIE = source_with_second_SIE.image - source_unperturbed.image
+        SIE_residuals.append(difference_SIE)
+        
+\end{lstlisting}
+Infine, questo implementa la visualizzazione grafica del risultato:
+\begin{lstlisting}
+    vmax_image_SIE = percentile_vmax(composite_total_images_all_SIE)
+    vmax_kappa_SIE = percentile_vmax(composite_kappa_maps_all_SIE)
+    vmax_difference_SIE = percentile_vmax(SIE_residuals)
+    
+    fig3, ax3 = plt.subplots(3, 4, figsize=(15, 10), constrained_layout=True)
+    
+    # Effect of varying the velocity dispersion of a SIE perturbator
+    fig3.suptitle("Effetto della variazione della dispersione di velocita di un perturbatore SIE", fontsize=20)
+    
+    for ax in ax3.flat:
+        ax.set_label("arcsec")
+        ax.set_aspect("equal")
+    
+    # Unperturbed references
+    ax3[0,0].set_title("Immagine imperturbata")
+    ax3[0,0].imshow(total_image_unperturbed, origin="lower", extent=extent, cmap="magma", vmax=vmax_image_SIE)
+    ax3[1,0].set_title('Convergenza $\kappa$ imperturbata')
+    ax3[1,0].imshow(lens.ka, origin="lower", extent=extent, cmap="coolwarm", vmax=vmax_kappa_SIE)
+    ax3[2,0].set_title("Differenza puntuale - imperturbata")
+    ax3[2,0].imshow(difference_unperturbed, origin="lower", extent=extent, cmap="PuOr", vmin=-vmax_difference_SIE, vmax=vmax_difference_SIE)
+    
+       
+    for xcritu, ycritu in critical_lines_lens:
+        ax3[0,0].plot(xcritu, ycritu, color="white", linestyle="dotted")
+        ax3[1,0].plot(xcritu, ycritu, color="white")
+        ax3[2,0].plot(xcritu, ycritu, color="indigo", linestyle="dotted")
+    
+    for i, sigma0_pert in enumerate(sigma0_values_pert):
+        # Perturbed images and convergence maps 
+        ax3[0,i+1].set_title(
+            rf'$\sigma_\mathrm{{pert}}={sigma0_pert}\,\mathrm{{km\,s^{{-1}}}}$, '
+            rf'$\theta_\mathrm{{E, pert}}={second_lens_SIE_all[i].bsie():.2f}$"')
+        im0 = ax3[0, i+1].imshow(composite_total_images_all_SIE[i], origin="lower", extent=extent, cmap="magma", vmax=vmax_image_SIE)
+    
+        ax3[1,i+1].set_title(
+            rf'Convergenza $\kappa$, $\sigma_\mathrm{{pert}}={sigma0_pert}\,\mathrm{{km\,s^{{-1}}}}$')
+        im1 = ax3[1,i+1].imshow(composite_kappa_maps_all_SIE[i], origin="lower", extent=extent, cmap="coolwarm", vmax=vmax_kappa_SIE)
+    
+        ax3[2,i+1].set_title(
+            rf'Differenza puntuale, $\sigma_\mathrm{{pert}}={sigma0_pert}\,\mathrm{{km\,s^{{-1}}}}$'
+        )
+        im2 = ax3[2, i+1].imshow(SIE_residuals[i], origin = "lower", extent=extent, cmap="PuOr", vmin=-vmax_difference_SIE, vmax=vmax_difference_SIE)
+    
+        for xcrit, ycrit in composite_critical_lines_SIE[i]:
+            ax3[0,i+1].plot(xcrit, ycrit, color="white", linestyle="dotted")
+            ax3[1,i+1].plot(xcrit, ycrit, color="white")
+            ax3[2,i+1].plot(xcrit, ycrit, color="indigo", linestyle="dotted")
+    
+    # Surface brightness
+    cbar0 = fig3.colorbar(
+        im0,
+        ax=ax3[0, :],
+        shrink=0.85,
+        pad=0.02
+    )
+    cbar0.set_label("Luminosita superficiale")
+    
+    # Convergence
+    cbar1 = fig3.colorbar(
+        im1,
+        ax=ax3[1, :],
+        shrink=0.85,
+        pad=0.02
+    )
+    cbar1.set_label(r"Convergenza $\kappa$")
+    
+    # Surface brightness (again)
+    cbar2 = fig3.colorbar(
+        im2,
+        ax=ax3[2, :],
+        shrink=0.85,
+        pad=0.02
+    )
+    cbar2.set_label("Luminosita superficiale")
+\end{lstlisting}
+Per uniformare la scala di visualizzazione delle immagini appartenenti alla stessa riga, era stata  definita in precedenza la funzione
+\begin{lstlisting}
+    def percentile_vmax(images, percentile=99.5):
+    return max(
+        np.percentile(img[np.isfinite(img)], percentile)
+        for img in images
+    )
+\end{lstlisting}

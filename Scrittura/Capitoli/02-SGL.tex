@@ -48,13 +48,12 @@ L'equazione in questa forma è però di scarsa utilità, perché richiede di int
  La disposizione geometrica è rappresentata schematicamente in Figura \ref{fig:geometry}.
  \begin{figure}
      \centering
-     \includegraphics[width=0.6\linewidth]{Immagini/2-Lensing/deflection_horizontal.png}
+     \includegraphics[width=0.8\linewidth]{Immagini/2-Lensing/deflection_horizontal.png}
      \caption{Rappresentazione schematica della geometria del raggio deflesso. Se il raggio viaggia lungo l'asse $z$ con parametro d'impatto $b$, la massa $M$ causa una deviazione di un angolo $\hat \alpha$.}
      \label{fig:geometry}
  \end{figure}
 
  L'equazione precedente è totalmente generale e descrive la deflessione causata da una distribuzione arbitraria di massa. In linea di principio, il calcolo richiederebbe la conoscenza del potenziale gravitazionale tridimensionale lungo l'intera traiettoria del fotone. Tuttavia, nella maggior parte dei contesti astrofisici, la profondità della lente è trascurabile rispetto alle distanze che la separano dalla sorgente e dall'osservatore: la deviazione avviene quindi in una regione spaziale molto limitata e può essere considerata istantanea.  Questa osservazione giustifica l'introduzione dell'\emph{approssimazione di lente sottile}, descritta nel prossimo paragrafo.
- \newline
 \subsection{L'equazione della lente}
 Quando le dimensioni fisiche della lente sono trascurabili rispetto alla distanza tra sorgente, lente e osservatore, tutta la sua massa viene proiettata su un piano; tale approssimazione prende il nome di \emph{approssimazione di lente sottile} e il piano su cui viene proiettata la massa della lente prende il nome di \emph{piano della lente}.  In maniera analoga, la distribuzione di massa della sorgente viene proiettata sul \emph{piano della sorgente}.
 
@@ -89,7 +88,7 @@ Una rappresentazione schematica di un tipico sistema di lente gravitazionale, in
     \caption{Rappresentazione schematica di un tipico sistema di lente gravitazionale; immagine riprodotta da \textcite{Bartelmann2001}.}
     \label{fig:source-lens-plane}
 \end{figure}
-La lente è collocata a distanza angolare $D_d$ dall'osservatore (dall'inglese \textit{angular diameter distance}) e deflette la la luce proveniente dalla sorgente a distanza angolare $D_s$. La linea tratteggiata che parte dall'osservatore ed è perpendicolare ai due piani della lente e della sorgente prende il nome di \emph{asse ottico}. Le distanze sui due piani si misurano in riferimento ad esso, e sono indicate rispettivamente con $\vec \xi$ per la lente e $\vec \eta$ per la sorgente. Le relative posizioni angolari sono misurate da $\vec \beta$ e $\vec \theta$, in modo che valgano le relazioni $\vec \eta = \vec \beta D_s$ e $\vec \xi = \vec \theta D_d$.
+La lente è collocata a distanza angolare $D_d$ dall'osservatore (dall'inglese \emph{angular diameter distance}) e deflette la luce proveniente dalla sorgente a distanza angolare $D_s$. La linea tratteggiata che parte dall'osservatore ed è perpendicolare ai due piani della lente e della sorgente prende il nome di \emph{asse ottico}. Le distanze sui due piani si misurano in riferimento ad esso, e sono indicate rispettivamente con $\vec \xi$ per la lente e $\vec \eta$ per la sorgente. Le relative posizioni angolari sono misurate da $\vec \beta$ e $\vec \theta$, in modo che valgano le relazioni $\vec \eta = \vec \beta D_s$ e $\vec \xi = \vec \theta D_d$.
 
 Poiché nel regime astrofisico di interesse le dimensioni trasverse del sistema sono molto inferiori alle distanze tra osservatore, lente e sorgente, si può applicare l'approssimazione dei piccoli angoli. In questo caso, esiste una relazione semplice tra la posizione reale della sorgente nel cielo e quella osservata, che prende il nome di \emph{equazione della lente}
 \begin{equation}
@@ -150,7 +149,7 @@ Nel nuovo formalismo che stiamo introducendo, la convergenza è proporzionale al
 Tale equazione può essere derivata sostituendo la \ref{eq:sigma_c} e la \ref{eq:sigma} (con opportuno cambio di variabile) nell'Equazione \ref{eq:convergence} e combinando il risultato ottenuto con l'equazione di Poisson, espressa nelle dovute coordinate. Fisicamente, essa afferma che maggiore è la curvatura locale del potenziale della lente (pensato come superficie bidimensionale), o, in altri termini, maggiore è la concentrazione di massa, tanto più efficacemente la lente stessa riesce a focalizzare  i raggi luminosi. 
 
 La deviazione dei fotoni ad opera di una distribuzione di massa dà dunque origine a immagini più grandi e luminose, ma anche deformate. Infatti, nel caso in cui la sorgente presenti un'estensione, come avviene nella realtà, ogni raggio di luce è deflesso in modo differenziale e indipendente dagli altri. 
-La separazione angolare tra osservatore e sorgente, per sorgenti piccole, può essere linearizzata al prim'ordine
+La separazione angolare tra osservatore e sorgente, per sorgenti piccole, può essere linearizzata al primo ordine
 \begin{equation}
     d\vec\beta(\vec\theta)= \mathbf{A}\ d\vec\theta 
 \end{equation}
@@ -191,7 +190,7 @@ Nella base in cui $\mathbf{A}$ è diagonale, essa assume dunque la forma
  0 & 1-\kappa+\gamma
      \end{pmatrix}    
 \end{equation}
-Concettualmente, il potenziale della lente agisce localmente sulle immagini in due modi: ingrandendole e deformandole. Tale azione locale è matematicamente sintetizzata dalla matrice $\mathbf{A}$, che dipende infatti dai parametri $\kappa$ e $\gamma$. Poiché l'inverso del determinante di una trasformazione è legato alla modifica dei volumi presenti nello spazio in cui tale trasformazione avviene, di definisce \emph{magnificazione} o \emph{fattore di ingrandimento}
+Concettualmente, il potenziale della lente agisce localmente sulle immagini in due modi: ingrandendole e deformandole. Tale azione locale è matematicamente sintetizzata dalla matrice $\mathbf{A}$, che dipende infatti dai parametri $\kappa$ e $\gamma$. Poiché l'inverso del determinante di una trasformazione è legato alla modifica dei volumi presenti nello spazio in cui tale trasformazione avviene, si definisce \emph{magnificazione} o \emph{fattore di ingrandimento}
 \begin{equation}
     \mu=\frac{1}{\det\mathbf{A}}=\frac{1}{(1-\kappa)^2-\gamma^2}
     \label{eq:magnification}
@@ -203,7 +202,7 @@ Quando almeno uno dei due autovalori di $\mathbf{A}$ è nullo, la magnificazione
 \begin{figure}
     \centering
     \includegraphics[width=0.8\linewidth]{Immagini//2-Lensing/caustics and critics.png}
-    \caption{Esempio della relazione tra caustiche e linee critiche in una lente ellittica. Nel pannello di sinistra sono riportate le caustiche (linee tratteggiate rosse) sul piano della sorgente, insieme alla sorgente rappresentata in nero. Nel pannello di destra sono mostrate le corrispondenti linee critiche sul piano della lente (linee tratteggiate rosse) e le cinque immagini lensate. Le linee continue colorate rappresentano curve a ritardo temporale costante. Immagine riprodotta da \cite{Meneghetti2021}.}
+    \caption{Esempio della relazione tra caustiche e linee critiche in una lente ellittica. Nel pannello di sinistra sono riportate le caustiche (linee tratteggiate rosse) sul piano della sorgente, insieme alla sorgente rappresentata in nero. Nel pannello di destra sono mostrate le corrispondenti linee critiche sul piano della lente (linee tratteggiate rosse) e le cinque immagini lensate. Le linee continue colorate rappresentano curve a ritardo temporale costante. Immagine riprodotta da \textcite{Meneghetti2021}.}
     \label{fig:caustics_and_critics}
 \end{figure}
 
@@ -243,15 +242,14 @@ Allontanando la sorgente dall'asse ottico, l'anello tende a rompersi, dando orig
  \end{figure}
 
 Questi fenomeni si verificano in corrispondenza delle curve critiche tangenziali (ovvero i punti per cui $1-\kappa-\gamma=0$) e di quelle radiali (dove $1-\kappa+\gamma=0$). Gli archi tangenziali, più comuni, sono usati per ricostruire il potenziale gravitazionale degli ammassi, e dunque anche la distribuzione di massa barionica e oscura racchiusa  all'interno delle relative linee critiche. Gli archi radiali invece, in genere più rari da osservare, sono sensibili alla pendenza del profilo di densità nelle regioni centrali dell'oggetto studiato e vengono utilizzati per vincolare la distribuzione di materia oscura nel nucleo degli ammassi, contribuendo a fare chiarezza sul \emph{Core-Cusp Problem}.
-
-
+\newpage
 \subsection{Il modello isotermo ellittico}
 Uno dei pochissimi esempi per cui l'equazione della lente è risolvibile analiticamente è il \emph{potenziale isotermo sferico singolare}. Il relativo profilo di densità può essere derivato assumendo che la materia di cui la lente è composta si comporti come un gas perfetto confinato in una buca di potenziale sferica, in equilibrio termico e idrodinamico con l'ambiente esterno. Ciò implica che l'energia cinetica media è costante nello spazio, ovvero la dispersione di velocità $\sigma_v$ è indipendente dalla distanza dal centro $r$. La formula esplicita del profilo di densità è 
 \begin{equation}
     \rho_{SIS}(r)=\frac{\sigma_v^2}{2\pi Gr^2}
     \label{eq:rho_SIS}
 \end{equation}
-dove l'abbreviazione SIS deriva dall'inglese \emph{Singular Isothermal Sphere}. L'aggettivo singolare viene apposto per sottolineare la divergenza per $r=0$, che lo distingue dalla versione \textit{softened}, in cui tale singolarità viene rimossa.
+dove l'abbreviazione SIS deriva dall'inglese \emph{Singular Isothermal Sphere}. L'aggettivo singolare viene apposto per sottolineare la divergenza per $r=0$, che lo distingue dalla versione \emph{softened}, in cui tale singolarità viene rimossa.
 Proiettando la densità tridimensionale lungo la linea di vista, si ottiene il corrispondente profilo della densità superficiale
 \begin{equation}
     \Sigma (\xi)=2\frac{\sigma_v^2}{2\pi G}\int_0^\infty\frac{dz}{\xi^2+z^2}=\frac{\sigma_v^2}{2\pi G\xi}
@@ -311,8 +309,8 @@ In particolare, le galassie ellittiche presentano grandi bulge e un piccolo disc
 Inoltre, come visto nella formula \ref{eq:einstein_radius}, il raggio di Einstein è direttamente proporzionale al quadrato della dispersione di velocità. Le galassie ellittiche, presentando una maggiore concentrazione, danno origine a buche di potenziale più profonde, e dunque a dispersioni di velocità dell'ordine di $200-300\ \text{km/s}$, molto più elevate delle spirali; i rispettivi raggi di Einstein sono dunque maggiori. Infine, la massa totale segue molto bene il profilo isotermo ellittico, rendendole più semplici da modellare. Tutto ciò contribuisce ad aumentare la loro sezione d'urto come lenti forti e permette in linea di principio di costruire grandi campioni osservativi.
 
 Tali campioni sono strumenti preziosi per ricavare la distribuzione di massa della materia oscura e studiare gli aloni, in quanto aggirano molte delle problematiche legate ai metodi di studio alternativi. Per questo motivo, si è scelto di dedicare questa sezione ad un loro approfondimento. 
-
-\subsection{Vantaggi dello strong lensing nello studio delle galassie ellittiche}
+\newpage
+\subsection[Vantaggi dello strong lensing nello studio delle galassie ellittiche]{Vantaggi dello strong lensing nello studio delle galassie \\ ellittiche}
 Il metodo alternativo al lensing comunemente utilizzato per studiare la distribuzione di massa nelle galassie è la cinematica, ossia la misura della dispersione di velocità o dei moti di rotazione di stelle, gas e ammassi globulari. Tali osservazioni possono fornire informazioni complete sulla distribuzione di massa solo se le misure sono spazialmente risolte, e ciò normalmente accade solo per le galassie più vicine. Infatti, l'uso dei moti delle singole stelle per ricostruire la distribuzione di massa è attualmente possibile solo per la Via Lattea; per tutte le altre galassie, l'unica osservabile dinamica accessibile è la dispersione di velocità integrata sull'apertura, ottenuta mediante spettroscopia. Le osservabili del lensing, invece, sono ricavate da immagini ad alta risoluzione. 
 
 L'indagine tramite lensing presenta dunque almeno un vantaggio importante, soprattutto per le galassie lente al di fuori dell'Universo Locale, in quanto non vi sono vincoli legati alla brillanza superficiale della galassia: il segnale dipende solo dalla combinazione tra la massa della lente e la luminosità della sorgente. 
@@ -345,7 +343,7 @@ Le galassie che producono strong lensing sono dunque prevalentemente galassie el
 Tuttavia, non tutti i sistemi di strong lensing sono chiaramente osservabili. Lo stesso studio, infatti, ha simulato come la medesima lente fosse vista da telescopi diversi, giungendo ai risultati riportati in Figura \ref{fig:Collett2}.
 \begin{figure}
     \centering
-    \includegraphics[width=0.60\linewidth]{Immagini//2-Lensing/Collett-2.png}
+    \includegraphics[width=0.7\linewidth]{Immagini//2-Lensing/Collett-2.png}
     \caption{Simulazione di come una stessa lente è osservata da telescopi diversi. Le immagini in bianco e nero sono ottenute mediante filtri particolari, e corrispondono a quelle a colori sovrastanti. Immagine riprodotta da \textcite{Collett2015}. }
     \label{fig:Collett2}
 \end{figure}
@@ -358,7 +356,7 @@ In particolare, essi confrontano il campione SLACS con il precedente \emph{Sloan
 In primo luogo viene confrontata la dispersione di velocità stellare entro metà raggio efficace in funzione della distribuzione di massa stellare, ottenendo la Figura \ref{fig:Auger1}.
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{Immagini//2-Lensing/Auger1.png}
+    \includegraphics[width=0.65\linewidth]{Immagini//2-Lensing/Auger1.png}
     \caption{Relazione $\sigma_{e/2}-M_\star$ per le lenti SLACS. La linea nera è il fit lineare dei dati, di cui la banda grigia indica l'incertezza. Le linee rosse, invece, rappresentano fit lineari ottenuti in precedenza da altre osservazioni. Le relazioni SLACS risultano essere in accordo con SDSS. Immagine riprodotta da \textcite{Auger_2010}.}
     \label{fig:Auger1}
 \end{figure}
@@ -367,7 +365,7 @@ Si può notare che esiste con buona approssimazione una relazione lineare tra $\
 Confrontando invece la relazione tra la massa stellare ed il raggio efficace, gli autori hanno ottenuto i risultati riportati in Figura \ref{fig:Auger2}.
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{Immagini//2-Lensing/Auger2.png}
+    \includegraphics[width=0.65\linewidth]{Immagini//2-Lensing/Auger2.png}
     \caption{Relazione $r_e-M_\star$ per le lenti SLACS. La linea nera è il fit lineare dei dati, di cui la banda grigia indica l'incertezza. Le linee rosse e blu, invece, rappresentano fit lineari ottenuti in precedenza da altre osservazioni. Le relazioni SLACS risultano avere una pendenza maggiore di SDSS, in quanto il campione è in media più massiccio. Immagine riprodotta da \textcite{Auger_2010}.}
     \label{fig:Auger2}
 \end{figure}
@@ -390,7 +388,7 @@ Le diverse manifestazioni delle lenti forti, come analizzato nel paragrafo \ref{
 \begin{figure}
     \centering
     \includegraphics[width=0.7\linewidth]{Immagini//2-Lensing/strong_lenses.png}
-    \caption{Esempi fenomenologia di lenti forti su scala galattica, ognuno con sorgenti diverse. Nella prima colonna non è stato possibile risolvere la sorgente; nella seconda e nella terza si hanno rispettivamente immagini di quasar e supernovae. La barra bianca indica una scala di 1''. Figura riprodotta da \textcite{Shajib2024}.}
+    \caption{Esempi di fenomenologia di lenti forti su scala galattica, ognuno con sorgenti diverse. Nella prima colonna non è stato possibile risolvere la sorgente; nella seconda e nella terza si hanno rispettivamente immagini di quasar e supernovae. La barra bianca indica una scala di 1''. Figura riprodotta da \textcite{Shajib2024}.}
     \label{fig:strong_lenses}
 \end{figure}
 
@@ -401,7 +399,7 @@ La seconda categoria è quella dei ritardi temporali. Se la sorgente è variabil
 Tuttavia, osservare perfettamente una lente non significa conoscere univocamente la distribuzione di massa. Modelli anche molto diversi fra loro possono infatti dare origine a immagini praticamente identiche, creando una degenerazione. 
 
 La degenerazione più significativa dal punto di vista della ricostruzione del profilo di massa totale è la \emph{Mass-Sheet Degeneracy} (MSD). 
-Osservando le immagini create dalla lente è possibile costruire un modello della distribuzione di massa che le riproduca. Tuttavia, esso non è univoco: esiste infatti un'intera famiglia di modelli che produce praticamente gli stessi osservabili di imaging. 
+Osservando le immagini create dalla lente è possibile costruire un modello della distribuzione di massa che le riproduca. Tuttavia, esso non è univoco: esiste infatti un'intera famiglia di modelli che produce praticamente le stesse osservabili di imaging. 
 Matematicamente, tale famiglia è descritta dalla trasformazione
 \begin{equation}
     \kappa \to \kappa'=\lambda \kappa + 1 - \lambda

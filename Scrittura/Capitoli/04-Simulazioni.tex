@@ -7,8 +7,9 @@ A questo scopo, nel presente capitolo vengono mostrate simulazioni in cui divers
 In apertura si presenta brevemente il software utilizzato, introducendo la libreria \texttt{PyLensLib} e descrivendo sinteticamente l'architettura del codice sviluppato.
 
 \section{Il software utilizzato}
-Le simulazioni presentate nel seguito sono state realizzate mediante la libreria \texttt{PyLensLib}. In questa sezione ne vengono richiamate brevemente le funzionalità rilevanti e le relative applicazioni al codice sviluppato per il presente lavoro. Successivamente si riporta schematicamente la struttura del codice e i parametri di base attribuiti alle diverse funzioni presenti. Ove non diversamente specificato, tali parametri sono da intendersi come costanti per tutta la struttura del codice.
+Le simulazioni presentate nel seguito sono state realizzate mediante la libreria \texttt{PyLensLib}, sviluppata da Massimo Meneghetti. Essa permette di implementare le principali relazioni teoriche utilizzate nel lensing gravitazionale forte e introdotte nei Capitoli precedenti, secondo il formalismo comunemente adottato in letteratura \parencite{Meneghetti2022}. In questa sezione ne vengono richiamate brevemente le funzionalità rilevanti e le relative applicazioni al codice sviluppato per il presente lavoro. Successivamente si riporta schematicamente la struttura del codice e i parametri di base attribuiti alle diverse funzioni presenti. Ove non diversamente specificato, tali parametri sono da intendersi come costanti per tutta la struttura del codice.
 \newpage
+
 \subsection{Introduzione a \texttt{PyLensLib}}
 La libreria scientifica \texttt{PyLensLib}, sviluppata in linguaggio di programmazione \texttt{Python}, è un software open-source che nasce per simulare sistemi di lenti gravitazionali dalle scale del microlensing fino agli ammassi di galassie \parencite{PyLensLib}. In particolare, il pacchetto si concentra su simulazioni astrofisiche nell'ambito di lensing gravitazionale forte ad opera di galassie su galassie ed ammassi.
 
@@ -19,7 +20,7 @@ La classe base per modellare la sorgente, invece, è \texttt{gensrc}. Da essa er
 La generazione delle immagini viene gestita internamente dalla libreria tramite \emph{ray tracing}.
 Quando viene definito l'oggetto lente mediante il relativo profilo di densità, è calcolato internamente il campo di deflessione associato $\alpha(\theta)$ su tutta la griglia numerica. Successivamente, durante la costruzione dell'oggetto sorgente, il campo di deflessione della lente passata in input viene utilizzato per applicare puntualmente l'equazione della lente (Eq. \ref{eq:lens_eq_real}) a ciascun punto $\theta$ del piano immagine, ricavando la corrispondente posizione $\beta(\theta)$ sul piano della sorgente. Poiché la distribuzione di brillanza superficiale della sorgente è nota a priori, ad ogni pixel dell'immagine viene assegnato il valore di brillanza associato al punto $\beta$ corrispondente, ottenendo così l'immagine lensata finale.
 
-La libreria include anche strumenti per la simulazione degli effetti osservativi, come ad esempio il rumore strumentale, nonché moduli dedicati alla costruzione di scenari cosmologici più realistici. Tali funzionalità permettono di includere nel modello alcune delle complessità discusse nel Capitolo \ref{cap:SGL+DM}; tuttavia, esse non sono stati utilizzate nel presente lavoro, in quanto l'obiettivo è limitato all'analisi delle deformazioni indotte dal lensing in condizioni ideali e controllate.
+La libreria include anche strumenti per la simulazione degli effetti osservativi, come ad esempio il rumore strumentale, nonché moduli dedicati alla costruzione di scenari cosmologici più realistici. Tali funzionalità permettono di includere nel modello alcune delle complessità discusse nel Capitolo \ref{cap:SGL+DM}; tuttavia, esse non sono state utilizzate nel presente lavoro, in quanto l'obiettivo è limitato all'analisi delle deformazioni indotte dal lensing in condizioni ideali e controllate.
 
 \subsection{Architettura del codice}
 Il codice utilizzato per sviluppare le simulazioni e le relative immagini è stato scritto in linguaggio \texttt{Python}, con l'ausilio della libreria appena introdotta, ovvero \texttt{PyLensLib}, ma anche di \texttt{numpy}, libreria specifica per la programmazione numerica, e \texttt{astropy}, un insieme di pacchetti pensati appositamente per l'utilizzo in contesti astronomici. Come ausilio per la visualizzazione grafica si è utilizzata la libreria \texttt{matplotlib}; tramite \texttt{pathlib}, invece, si è creata una cartella specifica per raccogliere gli output del codice, chiamata \texttt{outputs}.
@@ -36,7 +37,7 @@ I parametri geometrici caratteristici della lente base sono riassunti in Tabella
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Parametro}                    & \textbf{Simbolo}   & \textbf{Valore}     \\ \hline
-Dispersione di velocità               & $\sigma_0$ & $220.0\ $km s$^{-1}$ \\ \hline
+Dispersione di velocità               & $\sigma_0$ & $260.0\ $km s$^{-1}$ \\ \hline
 Ellitticità                           & q                  & 0.75                \\ \hline
 Posizione angolare dell'asse maggiore & $p_a$              & $35^\circ$        \\ \hline
 Raggio di core                        & $\theta_c$         & $10^{-4}$ arcsec    \\ \hline
@@ -97,7 +98,7 @@ Per ogni figura generata è stata definita la quantità \texttt{vmax} come
     for img in images_array
     )
 \end{lstlisting}
-dove \texttt{images\_array} è stato sostituito di volta in volta con la lista in cui erano state precedentemente salvate tutte le immagini di una stessa tipologia  (ad esempio, tutte le immagini lensate al variare della dispersione d velocità della galassia lente). Ciò permette di poter confrontare direttamente fra loro tutti i pannelli di una stessa riga, in quanto sono riferiti alla stessa scala. A tale scopo, ove utile alla lettura è stata riportata nelle immagini una \emph{colorbar} come riferimento. Quando si sono riportate informazioni diverse riferite alla stessa configurazione geometrica del sistema di lensing, i pannelli sono stati allineati in verticale. 
+dove \texttt{images\_array} è stato sostituito di volta in volta con la lista in cui erano state precedentemente salvate tutte le immagini di una stessa tipologia  (ad esempio, tutte le immagini lensate al variare della dispersione di velocità della galassia lente). Ciò permette di poter confrontare direttamente fra loro tutti i pannelli di una stessa riga, in quanto sono riferiti alla stessa scala. A tale scopo, ove utile alla lettura è stata riportata nelle immagini una \emph{colorbar} come riferimento. Quando si sono riportate informazioni diverse riferite alla stessa configurazione geometrica del sistema di lensing, i pannelli sono stati allineati in verticale. 
 
 Vi sono immagini in cui, oltre alla lente principale, è presente un perturbatore, che può assumere sia un profilo SIE che un profilo NFW.
 Per parametrizzare questa duplice possibilità, si è creata la variabile \texttt{second\_lens\_kind}, a cui può essere attribuita la stringa \texttt{"SIE"} o \texttt{"NFW"}. La variabile \texttt{second\_lens\_enabled}, di tipo booleano, controlla se le funzionalità relative alla seconda lente debbano essere attivate o meno. 
@@ -136,8 +137,8 @@ Si è dunque definita la funzione \texttt{build\_second\_lens()}, che prende com
 
 Una volta definite singolarmente lente e satellite, il metodo \texttt{compositeModel}
 li combina per ottenere la lente finale. A questo punto vengono ricalcolate le linee critiche e, ove necessario, le caustiche; inoltre, per il profilo SIE viene calcolato il raggio di Einstein del satellite, mentre per il profilo NFW viene calcolato il raggio di scala $r_s$ tramite il metodo \texttt{rs\_as} del perturbatore. 
-Il ray tracing è svolto in maniera analaoga al caso imperturbato, ma in input, quando si inizializzano i profili di Sérsic, viene passata la lente composita.
-Il listato completo del codice utilizzato è riportato in Appendice (necessario?).
+Il ray tracing è svolto in maniera analoga al caso imperturbato, ma in input, quando si inizializzano i profili di Sérsic, viene passata la lente composita.
+A titolo esemplificativo, in Appendice \ref{cap:appendice} è riportato il codice utilizzato per simulare e rappresentare i sistemi in Figura \ref{fig:SIE_sim}.
 \section{Sistema privo di perturbazioni}
 Per iniziare, si è studiato un sistema senza sotto-strutture, così da avere un riferimento chiaro da confrontare con i casi più complessi. Ciò è importante per poter comprendere meglio come i parametri della lente e la configurazione geometrica del sistema influenzino le immagini, al fine di riconoscere e distinguere poi la firma e le distorsioni dovute a piccole perturbazioni locali del potenziale di lensing.
 
@@ -148,14 +149,14 @@ Nella prima parte del codice, in fase di creazione della galassia lente, è stat
 \begin{lstlisting}
     sigma0_values = [180, 250, 290]
 \end{lstlisting}
-in cui sono contenuti i valori studiati della dispersione di velocità in km s$^{-1}$. In particolare, si è scelto un valore inferiore al picco più probabile, uno di poco superiore e uno nella coda superiore della distribuzione, per indagare casi limitrofi alla fenomenologia più probabile osservativamente. In Figura \ref{fig:sigma0_sim} sono sintetizzati visivamente i risultati ottenuti.
+in cui sono contenuti i valori studiati della dispersione di velocità in km s$^{-1}$; essi corrispondono nell'ordine, basandosi sul riferimento in Figura \ref{fig:Auger1}, a circa $4\cdot 10^{10}\ M_\odot$, \\ $2\cdot 10^{11}\ M_\odot$ e $4\cdot 10^{11}\ M_\odot$. In particolare, si è scelto un valore inferiore al picco più probabile, uno di poco superiore e uno nella coda superiore della distribuzione, per indagare casi limitrofi alla fenomenologia più probabile osservativamente. In Figura \ref{fig:sigma0_sim} sono sintetizzati visivamente i risultati ottenuti.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{Immagini//4-Simulazioni/final_simulations_sigma0.png}
-    \caption{Effetto dell'aumento della dispersione di velocità della galassia lente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative dispersioni di velocità e raggi di Eintein. Nei pannelli inferiori, invece, sono riportate le relative mappe di convergenza. Su tutti i pannelli sono state disegnate le linee critiche (in bianco). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a destra, e sono dunque confrontabili fra loro.}
+    \caption{Effetto dell'aumento della dispersione di velocità della galassia lente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative dispersioni di velocità e raggi di Einstein. Nei pannelli inferiori, invece, sono riportate le relative mappe di convergenza. Su tutti i pannelli sono state disegnate le linee critiche (in bianco). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a destra, e sono dunque confrontabili fra loro.}
     \label{fig:sigma0_sim}
 \end{figure}
-Nei tre pannelli superiori si è riportata l'immagine composita della sorgente lensata e della luce della lente, a cui è stata sovrapposta la linea critica (in bianco). Si può notare che, a parità degli altri parametri, un aumento della dispersione di velocità ha come effetto l'aumento del raggio di Einstein. Ciò risulta coerente con quanto si era trovato nella formula \ref{eq:einstein_radius}: infatti, calcolando i rapporti tra le dispersioni di velocità massima e minima al quadrato si ha
+Nei tre pannelli superiori si è riportata l'immagine composita della sorgente lensata e della luce della lente, a cui è stata sovrapposta la linea critica (in bianco). Si può notare che, a parità degli altri parametri, un aumento della dispersione di velocità ha come effetto l'aumento del raggio di Einstein, dato che aumentare $\sigma_0$ equivale ad aumentare la massa della lente. Ciò risulta coerente con quanto si era trovato nella formula \ref{eq:einstein_radius}: infatti, calcolando i rapporti tra le dispersioni di velocità massima e minima al quadrato si ha
 \begin{equation}
     \Big(\frac{\sigma_{max}}{\sigma_{min}}\Big)^2 \simeq 2.60
 \end{equation}
@@ -185,7 +186,7 @@ Come visto nella Sezione \ref{sez:Image formation}, a seconda della geometria de
 \begin{lstlisting}
     positions = [(0.01, 0.03), (0.15, 0.1), (-0.15,0.05), (0.3, 0.3)]
 \end{lstlisting}
-in cui sono contenuti i valori studiati in arcsec. Essi sono stati scelti in modo che la sorgente si trovasse nel primo caso quasi allineata alla lente, nel secondo vicino ad una cuspide della caustica, nel terzo vicino ad un \emph{fold} della caustica e nel quarto disallineata ed esterna alla caustica. In Figura \ref{fig:positions_sim} sono sintetizzati visivamente i risultati ottenuti. 
+in cui sono contenuti i valori dati in arcsec. Essi sono stati scelti in modo che la sorgente si trovasse nel primo caso quasi allineata alla lente, nel secondo vicino ad una cuspide della caustica, nel terzo vicino ad una \emph{fold} della caustica e nel quarto disallineata ed esterna alla caustica. In Figura \ref{fig:positions_sim} sono sintetizzati visivamente i risultati ottenuti. 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{Immagini//4-Simulazioni/final_simulations_positions.png}
@@ -206,7 +207,7 @@ Nella seconda colonna, la sorgente è posta vicino ad una cuspide della caustica
 \begin{equation}
     d = \sqrt{0.15^2+0.1^2} \simeq 0.180\ \text{arcsec} 
 \end{equation}
-dunque esse risultano più lontane rispetto al caso precedente. La teoria in questo caso prevederebbe la formazione del cusp triplet, in cui sono presenti due immagini di tipo II ed una di tipo I; tuttavia, in questo caso le tre immagini non risultano angolarmente distinguibili, in quanto fuse in un unico arco gravitazionale molto brillante, interno alla linea critica. La quarta immagine, invece, si trova all'esterno e risulta molto meno magnificata; il flusso è  dominato dal tripletto.
+dunque esse risultano più lontane rispetto al caso precedente. La teoria, in questo caso, prevederebbe la formazione del cusp triplet, in cui sono presenti due immagini di tipo II ed una di tipo I; tuttavia, in questo caso le tre immagini non risultano angolarmente distinguibili, in quanto fuse in un unico arco gravitazionale molto brillante, interno alla linea critica. La quarta immagine, invece, si trova all'esterno e risulta molto meno magnificata; il flusso è  dominato dal tripletto.
 
 Nella terza colonna, la sorgente è posta vicino ad una \emph{fold} della caustica. La distanza euclidea tra sorgente e lente è pari a 
 \begin{equation}
@@ -225,15 +226,17 @@ Da questa trattazione si osserva esattamente quanto discusso discorsivamente nel
 \section{Introduzione di un perturbatore}
 Finora si è analizzato come la morfologia delle immagini è influenzata da variazioni della configurazione geometrica del sistema e delle proprietà fisiche degli oggetti coinvolti. In questo paragrafo si introduce una sotto-struttura aggiuntiva, che produce perturbazioni locali al potenziale sulla base del proprio profilo di densità; in particolare vengono analizzati e confrontati il caso SIE ed il caso NFW. 
 \subsection{Perturbatore modellato tramite profilo SIE}
-Il primo modelling della struttura perturbatrice è avvenuto tramite un profilo analogo a quello della lente principale, ovvero il SIE (Eq. \ref{eq:rho_SIS} con cambio di variabile \ref{eq:ell_coordinate}). Analogamente a quanto fatto per il caso imperturbato, si sono studiati gli effetti di valori della dispersione di velocità, o equivalentemente della massa dell'alone; in particolare si sono scelti i valori, espressi in km s$^{-1}$
+Il primo modelling della struttura perturbatrice è avvenuto tramite un profilo analogo a quello della lente principale, ovvero il SIE (Eq. \ref{eq:rho_SIS} con cambio di variabile \ref{eq:ell_coordinate}). Analogamente a quanto fatto per il caso imperturbato, si sono studiati gli effetti di diversi valori della dispersione di velocità, o equivalentemente della massa dell'alone; in particolare si sono scelti i valori, espressi in km s$^{-1}$
 \begin{lstlisting}
     sigma0_values_pert = [50.0, 70.0, 90.0]
 \end{lstlisting}
+che corrispondono approssimativamente a masse di, rispettivamente, $2\cdot 10^{8}\ M_\odot$, $8\cdot 10^{8}\ M_\odot$ e $2\cdot 10^{9}\ M_\odot$.
 In Figura \ref{fig:SIE_sim} sono sintetizzati visivamente i risultati ottenuti; come riferimento, nella prima colonna è stato riportato il caso senza perturbatore. 
 \begin{figure}
      \centering
      \includegraphics[width=\linewidth]{Immagini/4-Simulazioni/final_simulations_SIE.png}
-     \caption{Effetto dell'aggiunta di un perturbatore con profilo SIE di massa crescente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative dispersioni di velocità e raggi di Einstein del perturbatore. Nei pannelli inferiori, invece, sono riportate le relative mappe di convergenza. Nella prima colonna sono riportati i riferimenti imperturbati. Su tutti i pannelli sono state disegnate le linee critiche (punteggiate sopra, linee continue sotto). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a
+     \caption{Effetto dell'aggiunta di un perturbatore con profilo SIE di massa crescente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative dispersioni di velocità e raggi di Einstein del perturbatore. Nei pannelli intermedi sono riportate le relative mappe di convergenza.
+     Infine, nei pannelli inferiori sono riportate le differenze tra l'immagine perturbata e quella imperturbata. Nella prima colonna sono riportati in tutti i casi i riferimenti imperturbati. Su tutti i pannelli sono state disegnate le linee critiche (punteggiate sopra, linee continue nella riga intermedia, in viola sotto). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a
      destra, e sono dunque confrontabili fra loro.}
      \label{fig:SIE_sim}
  \end{figure}
@@ -251,10 +254,12 @@ da cui nuovamente
 \end{equation}
 Inoltre, con l'intensificarsi della perturbazione, l'immagine della sorgente in basso a destra diventa progressivamente meno estesa ed intensa, e aumenta la sua separazione angolare rispetto all'arco adiacente. Nell'ultimo pannello, si può anche notare la formazione di una nuova immagine poco brillante in prossimità della sotto-struttura. Tali effetti sono coerenti con le perturbazioni alla brillanza superficiale discusse nella Sezione \ref{sez:I_perturbations}.
 
-Nei quattro pannelli inferiori, invece, sono riportate le mappe di convergenza relative alle immagini superiori, a cui sono state nuovamente sovrapposte le linee critiche.
+Nei quattro pannelli intermedi, invece, sono riportate le mappe di convergenza relative alle immagini superiori, a cui sono state nuovamente sovrapposte le linee critiche.
 In analogia con quanto già visto, la regione a convergenza più alta in corrispondenza del perturbatore (puntino rosso in basso a destra) si espande gradualmente al crescere di $\sigma_{pert}$. Con essa si estende anche la linea critica del perturbatore, di forma ellittica; di conseguenza, la linea critica complessiva viene deformata localmente, fondendo fra loro due ellissi di ellitticità differenti e disposte in maniera diversa nello spazio. 
 
-Per quantificare la firma gravitazionale lasciata dal perturbatore nel modello si è definita la grandezza 
+Infine, nella riga inferiore sono riportate le differenze puntuali tra l'immagine in cui è presente il perturbatore e il caso imperturbato. Nel primo pannello si osserva uno sfondo uniformemente bianco, in quanto l'immagine imperturbata è stata sottratta a se stessa. Nei pannelli successivi si vedono gradualmente comparire i residui, che si intensificano con l'aumento di $\sigma_{pert}$; le tracce in arancione identificano un calo nella brillanza superficiale, e indicano dunque la posizione delle immagini in assenza del sotto-alone. Le tracce in viola, invece, mostrano un aumento della brillanza superficiale a seguito della perturbazione. Cali e aumenti risultano essere sempre adiacenti tra loro e situati in prossimità dell'anello; ciò indica che l'aggiunta della sotto-struttura causa una traslazione e un rimodellamento delle immagini, dovuti ad un cambiamento nel campo gravitazionale, e di conseguenza nell'angolo di deflessione.
+
+Per quantificare la firma gravitazionale lasciata dal perturbatore nel modello, visualizzata finora solo in maniera puntuale, si è definita la grandezza 
 \begin{lstlisting}
     flux_ratio = (
     source_with_second.image.sum()
@@ -271,27 +276,32 @@ In Figura \ref{fig:SIE_graph_sim} è riportato un grafico che mostra la \texttt{
  \end{figure}
  Da esso può essere confermato quantitativamente quanto era già stato intuito qualitativamente: nel complesso, si ha una progressiva diminuzione di flusso all'aumentare della dispersione di velocità del satellite. In particolare, per $\sigma_{pert}= 50.0$ km s$^{-1}$ si ha $\frac{\Delta F}{F}=-1.7 \%$, per $\sigma_{pert}= 70.0$ km s$^{-1}$ si ha $\frac{\Delta F}{F}=-5.1 \%$ e infine per $\sigma_{pert}= 90.0$ km s$^{-1}$ si ha $\frac{\Delta F}{F}=-8.9\%$.
  Poiché il profilo SIE ha un andamento $1/r^2$ per $r \to 0$, le sotto-strutture modellate risultano molto compatte, e sono lenti molto efficienti; infatti, anche per dispersioni di velocità relativamente basse (ad esempio 40 km s$^{-1}$) si ottengono già anomalie di flusso dell'ordine del percento. Ciò rende gli effetti degli aloni più semplici da rilevare rispetto a profili che, a parità di massa, risultano più diffusi, come emergerà chiaramente nella trattazione del perturbatore NFW. 
-\newpage
+
 \subsection{Perturbatore modellato tramite profilo NFW}
 Come visto nel Capitolo \ref{cap:cosmologia}, un profilo di densità migliore per descrivere nello specifico le sotto-strutture di materia oscura è il profilo NFW (Eq. \ref{eq:NFW}). Se per il profilo SIE il parametro caratteristico è la dispersione di velocità, per il profilo NFW le due grandezze che determinano la forma della curva sono la massa $M_{pert}$ e la concentrazione $c$. Nell'analisi di questa tesi, la concentrazione viene mantenuta costante, mentre viene variata la massa dell'alone; in particolare, sulla base degli articoli presentati e citati nelle rilevazioni individuali del Capitolo \ref{cap:SGL+DM}, si sono scelti 
 \begin{lstlisting}
-    mass_values = [3.0e8, 4.0e9, 5.0e11]
+    mass_values = [5.0e8, 7.0e9, 1.0e11]
 \end{lstlisting}
 espressi in unità di masse solari $M_\odot$.
 In Figura \ref{fig:NFW_sim} sono sintetizzati visivamente i risultati ottenuti; anche in questo caso, nella prima colonna è stato riportato il caso senza perturbatore come riferimento. 
-\begin{figure}[h]
+\begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Immagini/4-Simulazioni/final_simulations_NFW.png}
-    \caption{Effetto dell'aggiunta di un perturbatore con profilo NFW di massa crescente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative masse e raggi di scala del perturbatore. Nei pannelli inferiori, invece, sono riportate le relative mappe di convergenza. Nella prima colonna sono riportati i riferimenti imperturbati. Su tutti i pannelli sono state disegnate le linee critiche (punteggiate sopra, linee continue sotto). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a destra, e sono dunque confrontabili fra loro.}
+    \caption{Effetto dell'aggiunta di un perturbatore con profilo NFW di massa crescente in un sistema di galaxy-galaxy lensing. Nei pannelli superiori sono riportate le immagini della sorgente lensata, a cui è stata sovrapposta la luce della lente, con relative masse e raggi di scala del perturbatore. Nei pannelli intermedi sono riportate le relative mappe di convergenza. 
+    Infine, nei pannelli inferiori sono riportate le differenze tra l'immagine perturbata e quella imperturbata. Nella prima colonna sono riportati in tutti i casi i riferimenti imperturbati. Su tutti i pannelli sono state disegnate le linee critiche (punteggiate sopra, linee continue nella riga intermedia, in viola sotto). Le immagini di una stessa riga sono riferite alla stessa scala, indicata dalla colorbar a destra, e sono dunque confrontabili fra loro.}
     \label{fig:NFW_sim}
 \end{figure}
-Nei quattro pannelli superiori sono rappresentate le immagini composite della sorgente lensata e della luce della lente, a cui sono state sovrapposte le relative linee critiche (in bianco, puntinate). Nel caso del profilo NFW è importante ricordare che esso decade a grandi r come $1/r^3$. Di conseguenza, le masse nominali lette sopra corrispondono all'integrazione della densità di massa da zero all'infinito, e possono essere sensibilmente maggiori rispetto alla massa proiettata entro l'area effettivamente rilevante per il lensing. Inoltre, per $r \to 0$ il profilo NFW ha un andamento più dolce del SIE, in quanto cresce come $1/r$. Di conseguenza, anche a parità di massa proiettata, un alone NFW è meno concentrato rispetto ad un SIE: la lente gravitazionale che ne risulta è meno efficace, e gli effetti osservabili sono meno evidenti. 
-Ciò si manifesta anche a livello simulativo. Infatti, osservando i pannelli superiori, la presenza di un perturbatore di massa dell'ordine di $10^8$ o $10^9$ masse solari non presenta perturbazioni di brillanza superficiali evidenti. Solo nell'ultimo caso, per $M_{pert}=5 \cdot 10^{11}\ M_\odot$, dove l'alone sarebbe abbastanza massiccio da presentare materia luminosa al proprio interno, si nota una deformazione delle immagini. In particolare, quella in basso a destra diminuisce la propria estensione ed aumenta la propria separazione angolare rispetto alle altre, che invece si avvicinano fra loro e tendono a fondersi in un unico arco gravitazionale. 
+
+Nei quattro pannelli superiori sono rappresentate le immagini composite della sorgente lensata e della luce della lente, a cui sono state sovrapposte le relative linee critiche (in bianco, puntinate). Nel caso del profilo NFW è importante ricordare che esso decade a grandi r come $1/r^3$. Di conseguenza, le masse nominali riportate sopra corrispondono all'integrazione della densità di massa da zero all'infinito, e possono essere sensibilmente maggiori rispetto alla massa proiettata entro l'area effettivamente rilevante per il lensing. Inoltre, per $r \to 0$ il profilo NFW ha un andamento più dolce del SIE, in quanto cresce come $1/r$. Di conseguenza, anche a parità di massa proiettata, un alone NFW è meno concentrato rispetto ad un SIE: la lente gravitazionale che ne risulta è meno efficace, e gli effetti osservabili sono meno evidenti. 
+
+Ciò si manifesta anche a livello simulativo. Infatti, osservando i pannelli superiori, la presenza di un perturbatore di massa dell'ordine di $10^8$ o $10^9$ masse solari non presenta perturbazioni di brillanza superficiali evidenti, come invece accadeva nel caso SIE. Solo nell'ultimo caso, per $M_{pert}=1 \cdot 10^{11}\ M_\odot$, dove l'alone sarebbe abbastanza massiccio da presentare materia luminosa al proprio interno, si nota una deformazione delle immagini. In particolare, quella in basso a destra diminuisce la propria estensione ed aumenta la propria separazione angolare rispetto alle altre, che invece si avvicinano fra loro e tendono a fondersi in un unico arco gravitazionale. 
 Un'altra differenza rispetto al profilo SIE è proprio questa: esso risulta molto concentrato, quindi le anomalie più evidenti si riscontrano solo nell'immagine in prossimità del perturbatore. Il profilo NFW, invece, sebbene causi localmente deformazioni meno evidenti, mostra anomalie alla brillanza superficiale diffuse tra tutte le immagini. Ciò lo rende nettamente più difficile da distinguere dagli effetti geometrici e fisici del sistema. 
 
-La minor concentrazione degli aloni si riflette anche nelle mappe di convergenza riportate nei pannelli inferiori. Infatti, la deformazione delle linee critiche nei primi due casi perturbati è appena percettibile, e non si osservano i picchi di convergenza evidenti del caso ellittico; solo nell'ultimo pannello si manifestano fenomenologie simili al caso precedente, e si può notare che la curva critica si deforma in maniera simile a quanto accadeva nel SIE.
+La minor concentrazione degli aloni si riflette anche nelle mappe di convergenza riportate nei pannelli intermedi. Infatti, la deformazione delle linee critiche nei primi due casi perturbati è appena percettibile, e non si osservano i picchi di convergenza evidenti del caso ellittico; solo nell'ultimo pannello si manifestano fenomenologie simili al caso precedente, e si può notare che la curva critica si deforma in maniera simile a quanto accadeva nel SIE.
 
-Anche in questo caso si è adottata la \texttt{flux\_ratio} per quantificare la firma gravitazionale lasciata dal perturbatore nel modello; in Figura \ref{fig:NFW_graph_sim} è riportato il suo andamento al variare della massa dell'alone. 
+Una particolarità del profilo NFW rispetto al SIE è che, anche se la firma di una sotto-struttura non è evidente dalle immagini spettrometriche, essa può essere rilevata dai residui. Ciò è chiaro anche osservando anche la riga inferiore della Figura \ref{fig:NFW_sim}: confrontando i vari casi con quello imperturbato a sinistra, per il secondo pannello la differenza è appena percepibile, ma già ad una massa di $M_{pert}=7 \cdot 10^{9}\ M_\odot$ la firma del sotto-alone è chiaramente visibile; nell'ultimo caso si hanno poi effetti macroscopici evidenti. È dunque chiaro che l'entità della perturbazione cresce all'aumentare della massa della sotto-struttura. Anche in questo caso, inoltre, le zone arancioni corrispondenti ai cali e quelle viola corrispondenti agli aumenti della luminosità superficiale risultano sempre accoppiate fra loro e poste in prossimità degli archi, indicando una traslazione e un rimodellamento delle immagini causati dal cambiamento nel potenziale gravitazionale del sistema. 
+
+Successivamente, si è adottata la \texttt{flux\_ratio} per quantificare la firma gravitazionale lasciata dal perturbatore nel modello; in Figura \ref{fig:NFW_graph_sim} è riportato il suo andamento al variare della massa dell'alone. 
 \begin{figure}
     \centering
     \includegraphics[width=0.7\linewidth]{Immagini/4-Simulazioni/final_simulations_NFW_graph.png}
@@ -299,7 +309,7 @@ Anche in questo caso si è adottata la \texttt{flux\_ratio} per quantificare la 
     \label{fig:NFW_graph_sim}
 \end{figure}
 
-Si nota nuovamente una progressiva diminuzione di flusso all'aumentare della massa della sotto-struttura; in particolare, per $M_{pert}=3 \cdot 10^{8}\ M_\odot$ si ha $\frac{\Delta F}{F}=-0.04\%$, per $M_{pert}=4 \cdot 10^{8}\ M_\odot$ si ha $\frac{\Delta F}{F}=-0.26\%$ e infine per $M_{pert}=5 \cdot 10^{11}\ M_\odot$ si ha $\frac{\Delta F}{F}=-6.05\%$. Tali valori sono stati calcolati all'interno del codice; per disegnare il grafico si è utilizzato il campionamento più grossolano 
+Si nota nuovamente una progressiva diminuzione di flusso all'aumentare della massa della sotto-struttura; in particolare, per $M_{pert}=5 \cdot 10^{8}\ M_\odot$ si ha $\frac{\Delta F}{F}=-0.06\%$, per $M_{pert}=7 \cdot 10^{9}\ M_\odot$ si ha $\frac{\Delta F}{F}=-0.39\%$ e infine per $M_{pert}=1 \cdot 10^{11}\ M_\odot$ si ha $\frac{\Delta F}{F}=-2.93\%$. Tali valori sono stati calcolati all'interno del codice; per disegnare il grafico si è utilizzato il campionamento più grossolano 
 \begin{lstlisting}
     mass_values_graph = [1.0e6, 1.0e7, 1.0e8, 5.0e8, 1.0e9, 5.0e9, 1.0e10, 3.0e10, 5.0e10, 7.0e10, 1.0e11]
 \end{lstlisting}
