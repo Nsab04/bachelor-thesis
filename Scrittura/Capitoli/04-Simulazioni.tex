@@ -101,8 +101,8 @@ Per ogni figura generata è stata definita la quantità \texttt{vmax} come
 dove \texttt{images\_array} è stato sostituito di volta in volta con la lista in cui erano state precedentemente salvate tutte le immagini di una stessa tipologia  (ad esempio, tutte le immagini lensate al variare della dispersione di velocità della galassia lente). Ciò permette di poter confrontare direttamente fra loro tutti i pannelli di una stessa riga, in quanto sono riferiti alla stessa scala. A tale scopo, ove utile alla lettura è stata riportata nelle immagini una \emph{colorbar} come riferimento. Quando si sono riportate informazioni diverse riferite alla stessa configurazione geometrica del sistema di lensing, i pannelli sono stati allineati in verticale. 
 
 Vi sono immagini in cui, oltre alla lente principale, è presente un perturbatore, che può assumere sia un profilo SIE che un profilo NFW.
-Per parametrizzare questa duplice possibilità, si è creata la variabile \texttt{second\_lens\_kind}, a cui può essere attribuita la stringa \texttt{"SIE"} o \texttt{"NFW"}. La variabile \texttt{second\_lens\_enabled}, di tipo booleano, controlla se le funzionalità relative alla seconda lente debbano essere attivate o meno. 
-
+Per parametrizzare questa duplice possibilità, la funzione per creare la lente composita, ovvero \texttt{make\_composite\_lens}, accetta come parametri sia il tipo di lente (una stringa \texttt{SIE} o \texttt{NFW}
+) sia i relativi parametri base di costruzione, riportati nelle Tabelle \ref{tab:SIE_par_sim} e \ref{tab:NFW_par_sim}, e costruisce il perturbatore con \texttt{sie} o \texttt{nfwell} a seconda del tipo passato.
 \begin{table}[]
 \centering
 \begin{tabular}{|c|c|c|}
@@ -133,9 +133,9 @@ Posizione del satellite NFW           & $(\theta_{NFW, 1}, \theta_{NFW, 2})$ & $
 \label{tab:NFW_par_sim}
 \end{table}
 
-Si è dunque definita la funzione \texttt{build\_second\_lens()}, che prende come argomenti \texttt{kind}, ovvero il tipo di lente, e il valore booleano \texttt{enabled}, definiti in precedenza. Se \texttt{enabled=False} la funzione non restituisce nulla, altrimenti costruisce il relativo oggetto con \texttt{sie} o \texttt{nfwell} a seconda del tipo passato. I parametri geometrici di base riferiti al satellite SIE e al satellite NFW sono riportati rispettivamente in Tabella \ref{tab:SIE_par_sim} e in Tabella \ref{tab:NFW_par_sim}. Essi sono stati posti nella stessa posizione per facilitare un confronto fra i due casi; inoltre, entrambi i satelliti di base sono stati scelti molto massicci, per accentuare gli effetti di deflessione e perturbazione al sistema.
+Entrambi sono stati posti nella stessa posizione per facilitare un confronto fra i due casi; inoltre, di base sono stati scelti molto massicci, per accentuare gli effetti di deflessione e perturbazione al sistema.
 
-Una volta definite singolarmente lente e satellite, il metodo \texttt{compositeModel}
+Una volta definite singolarmente lente e satellite, sempre all'interno della medesima funzione il metodo \texttt{compositeModel}
 li combina per ottenere la lente finale. A questo punto vengono ricalcolate le linee critiche e, ove necessario, le caustiche; inoltre, per il profilo SIE viene calcolato il raggio di Einstein del satellite, mentre per il profilo NFW viene calcolato il raggio di scala $r_s$ tramite il metodo \texttt{rs\_as} del perturbatore. 
 Il ray tracing è svolto in maniera analoga al caso imperturbato, ma in input, quando si inizializzano i profili di Sérsic, viene passata la lente composita.
 A titolo esemplificativo, in Appendice \ref{cap:appendice} è riportato il codice utilizzato per simulare e rappresentare i sistemi in Figura \ref{fig:SIE_sim}.
